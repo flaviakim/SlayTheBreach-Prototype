@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
+using UnityEngine;
+
+public class BattleMap : MonoBehaviour {
+    [SerializeField] private int width = 10;
+    [SerializeField] private int height = 10;
+
+    [SerializeField] private MapTile mapTilePrefab;
+
+    public int Width => width;
+    public int Height => height;
+
+    private MapTile[,] _tiles = null!;
+
+    private void Awake() {
+        CreateTiles();
+
+        return;
+
+        void CreateTiles() {
+            _tiles = new MapTile[width, height];
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    var type = (TileType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(TileType)).Length);
+                    _tiles[x, y] = CreateTile(x, y, type);
+                }
+            }
+        }
+
+        MapTile CreateTile(int x, int y, TileType type) {
+            var tile = Instantiate(mapTilePrefab);
+            tile.Initialize(x, y, this, type);
+            return tile;
+        }
+    }
+
+    public bool TryGetTile(Vector2 position, out MapTile tile) {
+        return TryGetTile(new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y)), out tile);
+    }
+
+    public bool TryGetTile(Vector2Int position, out MapTile tile) {
+        if (position.x < 0 || position.x >= width || position.y < 0 || position.y >= height) {
+            tile = null!;
+            return false;
+        }
+
+        tile = _tiles[position.x, position.y];
+        return true;
+    }
+
+    public List<MapTile> GetTilesWhere(Func<MapTile, bool> predicate) {
+        var result = new List<MapTile>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                var tile = _tiles[x, y];
+                if (predicate(tile)) {
+                    result.Add(tile);
+                }
+            }
+        }
+
+        return result;
+    }
+
+}
