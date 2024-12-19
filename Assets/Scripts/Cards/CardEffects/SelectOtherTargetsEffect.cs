@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SelectOtherTargetsEffect : ICardEffect {
-    public readonly int TargetCount;
-    public readonly int RangeFromCardTarget;
-    public readonly FactionRelationship Relationship;
+    public int TargetCount { get; }
+    public int RangeFromCardTarget { get; }
+    public FactionRelationship Relationship { get; }
 
     private readonly List<Creature> _selectedCreatures = new();
     private int RemainingTargets => TargetCount - _selectedCreatures.Count;
@@ -21,33 +21,33 @@ public class SelectOtherTargetsEffect : ICardEffect {
 
     public void StartEffect(CardEffectHandler handler) {
         handler.OtherSelectedCreatures.Clear();
+        _selectedCreatures.Clear();
     }
 
-    public void UpdateEffect(CardEffectHandler handler, out bool effectFinished) {
-        if (Input.GetMouseButtonUp(0)) {
-            // TODO this is a bit of a hack, we should have a better way to get the tile the mouse is over, a bit more abstraction
-            var mouseWorldPosition = CameraController.Instance.GetMouseWorldPosition();
-            var isTileUnderMouse = BattleMap.CurrentBattleMap.TryGetTile(mouseWorldPosition, out var tile);
-            var isTileOccupied = isTileUnderMouse && tile.Occupant != null;
-            var validTarget = isTileOccupied && Relationship switch {
-                FactionRelationship.Enemy => tile.Occupant.IsPlayerControlled !=
-                                             handler.CurrentCardTarget!.IsPlayerControlled,
-                FactionRelationship.Ally => tile.Occupant.IsPlayerControlled ==
-                                            handler.CurrentCardTarget!.IsPlayerControlled,
-                FactionRelationship.All => true,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            var inRange = isTileUnderMouse && BattleMap.DistanceBetweenTiles(handler.CurrentCardTarget!.CurrentTile, tile) <= RangeFromCardTarget;
-            if (validTarget && inRange) {
-                var creature = tile.Occupant;
-                if (!_selectedCreatures.Contains(creature)) {
-                    _selectedCreatures.Add(creature);
-                }
+    public void OnSelectedTile(CardEffectHandler handler, MapTile selectedTile, out bool effectFinished) {
+        var isTileOccupied = selectedTile.Occupant != null;
+        var validTarget = isTileOccupied && Relationship switch {
+            FactionRelationship.Enemy => selectedTile.Occupant.IsPlayerControlled !=
+                                         handler.CurrentCardTarget!.IsPlayerControlled,
+            FactionRelationship.Ally => selectedTile.Occupant.IsPlayerControlled ==
+                                        handler.CurrentCardTarget!.IsPlayerControlled,
+            FactionRelationship.All => true,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        var inRange = BattleMap.DistanceBetweenTiles(handler.CurrentCardTarget!.CurrentTile, selectedTile) <= RangeFromCardTarget;
+        if (validTarget && inRange) {
+            var creature = selectedTile.Occupant;
+            if (!_selectedCreatures.Contains(creature)) {
+                _selectedCreatures.Add(creature);
             }
         }
 
         Debug.Assert(_selectedCreatures.Count <= TargetCount);
         effectFinished = _selectedCreatures.Count >= TargetCount;
+    }
+
+    public void UpdateEffect(CardEffectHandler handler, out bool effectFinished) {
+        effectFinished = false;
     }
 
     public void EndEffect(CardEffectHandler handler) {

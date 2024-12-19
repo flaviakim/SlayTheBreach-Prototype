@@ -5,9 +5,11 @@ using UnityEngine;
 
 public class CardEffectHandler : MonoBehaviour {
 
+    public event Action OnCardFinished = null!;
+
     public CardEffectHandler Instance { get; private set; } = null!;
 
-    [CanBeNull] public Creature CurrentCardTarget { get; private set; } = null;
+    public Creature CurrentCardTarget { get; private set; } = null;
     public List<Creature> OtherSelectedCreatures { get; } = new();
 
     public bool IsPlayingEffect => CurrentEffect != null || EffectQueue.Count > 0;
@@ -17,23 +19,40 @@ public class CardEffectHandler : MonoBehaviour {
     private void Awake() {
         if (Instance != null) {
             Destroy(gameObject);
-            throw new System.Exception("CardEffectHandler already initialized");
+            Debug.LogError("CardEffectHandler already initialized");
+            return;
         }
         Instance = this;
     }
 
     private void Update() {
+        CheckTileClicked();
         UpdateCurrentEffect();
         return;
+
+        void CheckTileClicked() {
+            if (CurrentEffect == null) return;
+            if (!Input.GetMouseButtonUp(0)) return;
+            var mouseWorldPosition = CameraController.Instance.GetMouseWorldPosition();
+            if (!BattleMap.CurrentBattleMap.TryGetTile(mouseWorldPosition, out var tile)) return;
+            CurrentEffect.OnSelectedTile(this, tile, out var effectFinished);
+            if (effectFinished) {
+                HasNewlyFinished();
+            }
+        }
 
         void UpdateCurrentEffect() {
             if (CurrentEffect == null) return;
             CurrentEffect.UpdateEffect(this, out var finished);
             if (finished) {
-                CurrentEffect.EndEffect(this);
-                CurrentEffect = null;
-                PlayNextEffect();
+                HasNewlyFinished();
             }
+        }
+
+        void HasNewlyFinished() {
+            CurrentEffect.EndEffect(this);
+            CurrentEffect = null;
+            PlayNextEffect();
         }
     }
 
@@ -48,7 +67,6 @@ public class CardEffectHandler : MonoBehaviour {
 
     private void PlayNextEffect() {
         if (EffectQueue.Count == 0) {
-            Debug.Log($"Finished playing all effects");
             FinishUpCurrentCard();
             return;
         }
@@ -61,7 +79,9 @@ public class CardEffectHandler : MonoBehaviour {
         return;
 
         void FinishUpCurrentCard() {
+            Debug.Log($"Finished playing all effects");
             CurrentCardTarget = null;
+            OnCardFinished?.Invoke();
         }
     }
 
@@ -80,4 +100,5 @@ public class CardEffectHandler : MonoBehaviour {
         GUILayout.EndArea();
 
     }
+
 }

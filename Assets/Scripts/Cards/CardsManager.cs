@@ -21,7 +21,7 @@ public class CardsManager : MonoBehaviour {
 
         PlayerDeck = new PlayerDeck();
         foreach (var card in _allCards) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 5; i++) {
                 PlayerDeck.AddCard(card);
             }
         }
@@ -41,6 +41,12 @@ public class CardsManager : MonoBehaviour {
             "Deal 3 damage to target creature",
             new SelectOtherTargetsEffect(1, 7, FactionRelationship.Enemy),
             new DamageEffect(3)
+        ));
+
+        _allCards.Add(new Card(
+            "Move",
+            "Move 4 tiles",
+            new MoveCardEffect(4)
         ));
     }
 }

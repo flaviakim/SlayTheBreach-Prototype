@@ -43,6 +43,10 @@ public class Battle : MonoBehaviour {
 
         CardEffectHandler.PlayCard(playedCard, creature);
 
+        if (CardsManager.PlayerDeck.HandCards.Count == 0) {
+            CardsManager.PlayerDeck.DrawCards(startHandSize);
+        }
+
         return true;
     }
 

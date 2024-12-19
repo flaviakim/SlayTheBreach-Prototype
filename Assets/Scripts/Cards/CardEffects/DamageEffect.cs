@@ -1,11 +1,11 @@
 public class DamageEffect : ICardEffect {
-    public readonly int Damage;
+    public int Damage { get; }
 
     public string EffectName => "Damage";
     public string InstructionText => null;
 
     public DamageEffect(int damage) {
-        this.Damage = damage;
+        Damage = damage;
     }
 
     public void StartEffect(CardEffectHandler handler) {
@@ -13,10 +13,14 @@ public class DamageEffect : ICardEffect {
             otherSelectedCreature.TakeDamage(Damage);
         }
     }
+
+    public void OnSelectedTile(CardEffectHandler handler, MapTile selectedTile, out bool effectFinished) {
+        effectFinished = false;
+    }
+
     public void UpdateEffect(CardEffectHandler handler, out bool effectFinished) {
         effectFinished = true;
     }
-    public void EndEffect(CardEffectHandler handler) {
 
-    }
+    public void EndEffect(CardEffectHandler handler) { }
 }

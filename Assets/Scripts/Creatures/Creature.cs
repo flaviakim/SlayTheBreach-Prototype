@@ -57,6 +57,17 @@ public class Creature : MonoBehaviour {
             return false;
         }
 
+        if (Vector2Int.Distance(Position, tile.Position) > 1) {
+            Debug.Log($"Trying to move too far in one step, from {Position} to {tile.Position}");
+            return false;
+        }
+
+        // For debugging this makes it easier
+        // if (tile.Type == TileType.Water) {
+        //     Debug.Log($"Trying to move to water tile {tile.Position}");
+        //     return false;
+        // }
+
         return true;
     }
 
