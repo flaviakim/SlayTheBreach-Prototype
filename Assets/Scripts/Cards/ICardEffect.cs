@@ -11,4 +11,6 @@ public interface ICardEffect {
     void UpdateEffect(CardEffectHandler handler, out bool effectFinished);
 
     void EndEffect(CardEffectHandler handler);
+
+
 }

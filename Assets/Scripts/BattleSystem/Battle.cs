@@ -32,7 +32,15 @@ public class Battle : MonoBehaviour {
     }
 
     private void Start() {
+        CardEffectHandler.OnCardFinished += OnCardFinishedPlaying;
         CardsManager.PlayerDeck.StartNewGame(startHandSize);
+    }
+
+    private void OnCardFinishedPlaying(Card card) {
+        // TODO for now we just draw more cards,
+        if (CardsManager.PlayerDeck.HandCards.Count == 0) {
+            CardsManager.PlayerDeck.DrawCards(startHandSize);
+        }
     }
 
 
@@ -42,10 +50,6 @@ public class Battle : MonoBehaviour {
         }
 
         CardEffectHandler.PlayCard(playedCard, creature);
-
-        if (CardsManager.PlayerDeck.HandCards.Count == 0) {
-            CardsManager.PlayerDeck.DrawCards(startHandSize);
-        }
 
         return true;
     }

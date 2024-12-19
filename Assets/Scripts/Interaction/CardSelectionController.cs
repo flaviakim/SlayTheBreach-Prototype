@@ -34,7 +34,7 @@ public class CardSelectionController : MonoBehaviour {
         var handCards = Battle.CurrentBattle.CardsManager.PlayerDeck.HandCards;
         for (var i = 0; i < handCards.Count; i++) {
             var card = handCards[i];
-            GUILayout.Label($"{i + 1}: {card.cardName}{(i == _selectedCardIndex ? " (<-)" : "")}");
+            GUILayout.Label($"{i + 1}: {card.CardName}{(i == _selectedCardIndex ? " (<-)" : "")}");
         }
         GUILayout.EndVertical();
         GUILayout.EndArea();

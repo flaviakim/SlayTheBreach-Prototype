@@ -5,10 +5,14 @@ using UnityEngine;
 
 public class CardEffectHandler : MonoBehaviour {
 
-    public event Action OnCardFinished = null!;
+    public event Action<ICardEffect, Card> OnEffectStarted = null!;
+    public event Action<ICardEffect, Card> OnEffectFinished = null!;
+    public event Action<Card> OnCardStarted = null!;
+    public event Action<Card> OnCardFinished = null!;
 
     public CardEffectHandler Instance { get; private set; } = null!;
 
+    public Card CurrentCard { get; private set; } = null!;
     public Creature CurrentCardTarget { get; private set; } = null;
     public List<Creature> OtherSelectedCreatures { get; } = new();
 
@@ -26,9 +30,18 @@ public class CardEffectHandler : MonoBehaviour {
     }
 
     private void Update() {
+        if (CheckCardManuallyEnded()) return;
+
         CheckTileClicked();
         UpdateCurrentEffect();
         return;
+
+        bool CheckCardManuallyEnded() { // Player manually ends the card effect
+            if (CurrentEffect == null) return false;
+            if (!Input.GetKeyDown(KeyCode.Space)) return false;
+            FinishUpCurrentEffect();
+            return true;
+        }
 
         void CheckTileClicked() {
             if (CurrentEffect == null) return;
@@ -37,7 +50,7 @@ public class CardEffectHandler : MonoBehaviour {
             if (!BattleMap.CurrentBattleMap.TryGetTile(mouseWorldPosition, out var tile)) return;
             CurrentEffect.OnSelectedTile(this, tile, out var effectFinished);
             if (effectFinished) {
-                HasNewlyFinished();
+                FinishUpCurrentEffect();
             }
         }
 
@@ -45,23 +58,37 @@ public class CardEffectHandler : MonoBehaviour {
             if (CurrentEffect == null) return;
             CurrentEffect.UpdateEffect(this, out var finished);
             if (finished) {
-                HasNewlyFinished();
+                FinishUpCurrentEffect();
             }
         }
 
-        void HasNewlyFinished() {
-            CurrentEffect.EndEffect(this);
-            CurrentEffect = null;
-            PlayNextEffect();
+
+    }
+
+    private void FinishUpCurrentEffect() {
+        if (CurrentEffect == null) {
+            Debug.LogWarning("Trying to finish up current effect, but there is no current effect");
+            return;
         }
+
+        Debug.Log($"Finishing effect {CurrentEffect.EffectName}");
+        CurrentEffect.EndEffect(this);
+        OnEffectFinished?.Invoke(CurrentEffect, CurrentCard);
+        CurrentEffect = null;
+        PlayNextEffect();
     }
 
     public void PlayCard(Card card, Creature cardTarget) {
+        if (IsPlayingEffect) {
+            FinishUpCurrentEffect();
+        }
         CurrentCardTarget = cardTarget;
-        foreach (var effect in card.effects) {
-            Debug.Log($"Adding effect {effect.EffectName}");
+        foreach (var effect in card.Effects) {
+            Debug.Log($"Adding effect {effect.EffectName} from card {card.CardName}");
             EffectQueue.Enqueue(effect);
         }
+        CurrentCard = card;
+        OnCardStarted?.Invoke(card);
         PlayNextEffect();
     }
 
@@ -73,7 +100,8 @@ public class CardEffectHandler : MonoBehaviour {
 
         var effect = EffectQueue.Dequeue();
         CurrentEffect = effect;
-        Debug.Log($"Playing effect {effect.EffectName}");
+        OnEffectStarted?.Invoke(effect, CurrentCard);
+        Debug.Log($"Starting effect {effect.EffectName}");
         effect.StartEffect(this);
 
         return;
@@ -81,7 +109,8 @@ public class CardEffectHandler : MonoBehaviour {
         void FinishUpCurrentCard() {
             Debug.Log($"Finished playing all effects");
             CurrentCardTarget = null;
-            OnCardFinished?.Invoke();
+            OnCardFinished?.Invoke(CurrentCard);
+            CurrentCard = null;
         }
     }
 
