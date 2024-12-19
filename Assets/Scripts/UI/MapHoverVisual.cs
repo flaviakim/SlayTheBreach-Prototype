@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class MapHoverVisual : MonoBehaviour {
     [SerializeField] private GameObject visual;
-    [SerializeField] private TextMeshPro text;
-    private string CurrentText => text.text;
+    private string _currentText = "";
 
     private void Start() {
         var mapHoverController = FindFirstObjectByType<MapHoverController>();
@@ -15,12 +14,12 @@ public class MapHoverVisual : MonoBehaviour {
     private void OnHoverTileChanged(HoverInfo info) {
 
         if (info.Tile == null) {
-            text.text = "";
+            _currentText = "";
             return;
         }
 
         visual.transform.position = info.Tile.Position + new Vector2(0.5f, 0.5f);
-        text.text = GetInfoTextForTile(info.Tile);
+        _currentText = GetInfoTextForTile(info.Tile);
 
     }
 
@@ -41,14 +40,14 @@ public class MapHoverVisual : MonoBehaviour {
     }
 
     private void OnGUI() {
-        if (CurrentText == "") {
+        if (_currentText == "") {
             return;
         }
 
         var tileSizeInPixels = Screen.height / Battle.CurrentBattle.BattleMap.Height;
         var rect = new Rect(Input.mousePosition.x + 10, Screen.height - Input.mousePosition.y, tileSizeInPixels, tileSizeInPixels);
         GUILayout.BeginArea(rect);
-        GUILayout.Label(CurrentText);
+        GUILayout.Label(_currentText);
         GUILayout.EndArea();
     }
 }
