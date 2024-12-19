@@ -1,9 +1,11 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 public class MapHoverVisual : MonoBehaviour {
     [SerializeField] private GameObject visual;
     [SerializeField] private TextMeshPro text;
+    private string CurrentText => text.text;
 
     private void Start() {
         var mapHoverController = FindFirstObjectByType<MapHoverController>();
@@ -36,5 +38,17 @@ public class MapHoverVisual : MonoBehaviour {
             stringBuilder.AppendLine($"Faction: {occupant.Faction}");
         }
         return stringBuilder.ToString();
+    }
+
+    private void OnGUI() {
+        if (CurrentText == "") {
+            return;
+        }
+
+        var tileSizeInPixels = Screen.height / Battle.CurrentBattle.BattleMap.Height;
+        var rect = new Rect(Input.mousePosition.x + 10, Screen.height - Input.mousePosition.y, tileSizeInPixels, tileSizeInPixels);
+        GUILayout.BeginArea(rect);
+        GUILayout.Label(CurrentText);
+        GUILayout.EndArea();
     }
 }

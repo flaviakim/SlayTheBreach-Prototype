@@ -11,7 +11,7 @@ public class CreaturesInitializer : MonoBehaviour {
 
 
     private void Start() {
-        var map = FindFirstObjectByType<BattleMap>();
+        var map = Battle.CurrentBattle.BattleMap;
         if (map == null) {
             throw new Exception("BattleMap not found");
         }
@@ -25,11 +25,13 @@ public class CreaturesInitializer : MonoBehaviour {
             var creature = Instantiate(enemyCreaturePrefabs[UnityEngine.Random.Range(0, enemyCreaturePrefabs.Length)]);
             creature.Initialize(GetRandomFreePosition(map, Faction.Enemy));
         }
+
+        Debug.Log("Creatures initialized");
     }
 
-    private void Update() {
-        Destroy(gameObject);
-    }
+    // private void Update() {
+    //     Destroy(gameObject);
+    // }
 
     private MapTile GetRandomFreePosition(BattleMap map, Faction faction) {
         var validTiles = map.GetTilesWhere(tile => {

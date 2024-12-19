@@ -4,6 +4,9 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 public class BattleMap : MonoBehaviour {
+
+    public static BattleMap CurrentBattleMap { get; private set; } = null!;
+
     [SerializeField] private int width = 10;
     [SerializeField] private int height = 10;
 
@@ -16,6 +19,10 @@ public class BattleMap : MonoBehaviour {
 
     private void Awake() {
         CreateTiles();
+        if (CurrentBattleMap != null) {
+            Debug.LogWarning("CurrentBattleMap already initialized, not yet removed.");
+        }
+        CurrentBattleMap = this;
 
         return;
 
@@ -64,4 +71,8 @@ public class BattleMap : MonoBehaviour {
         return result;
     }
 
+    public static int DistanceBetweenTiles(MapTile tileA, MapTile tileB) {
+        // manhattan distance
+        return Mathf.Abs(tileA.Position.x - tileB.Position.x) + Mathf.Abs(tileA.Position.y - tileB.Position.y);
+    }
 }

@@ -13,9 +13,8 @@ public class Creature : MonoBehaviour {
 
     [SerializeField] private Faction faction = Faction.Player;
 
-    private MapTile _currentTile = null!;
-
-    public Vector2Int Position => _currentTile.Position;
+    public MapTile CurrentTile { get; private set; } = null!;
+    public Vector2Int Position => CurrentTile.Position;
 
     public string CreatureName => creatureName;
     public int Health => health;
@@ -25,28 +24,29 @@ public class Creature : MonoBehaviour {
     public int Speed => speed;
 
     public Faction Faction => faction;
+    public bool IsPlayerControlled => faction == Faction.Player;
 
     public void Initialize([NotNull] MapTile tile) {
-        Debug.Assert(_currentTile == null, "Creature already initialized");
+        Debug.Assert(CurrentTile == null, "Creature already initialized");
         MoveTo(tile);
-        Debug.Assert(_currentTile == tile && tile.Occupant == this, "Creature not moved to the correct tile");
+        Debug.Assert(CurrentTile == tile && tile.Occupant == this, "Creature not moved to the correct tile");
     }
 
     public bool MoveTo([NotNull] MapTile tile) {
         // if we don't have a current tile, it's just initialization we can skip steps 1 & 2, checks must be made in where we call this method
-        if (_currentTile != null) {
+        if (CurrentTile != null) {
             // 1. check if we can move to the new tile
             if (!CanMoveTo(tile)) {
                 return false;
             }
 
             // 2. move away from the current tile
-            _currentTile.Occupant = null;
+            CurrentTile.Occupant = null;
         }
 
         // 3. move to the new tile
-        _currentTile = tile;
-        _currentTile.Occupant = this;
+        CurrentTile = tile;
+        CurrentTile.Occupant = this;
         transform.position = new Vector3(tile.Position.x, tile.Position.y, 0);
 
         return true;
@@ -58,6 +58,12 @@ public class Creature : MonoBehaviour {
         }
 
         return true;
+    }
+
+    public void TakeDamage(int damage) {
+        health -= damage;
+        Debug.Log($"{creatureName} takes {damage} damage, now has {health} health");
+        Debug.LogWarning("Creature.TakeDamage not implemented fully");
     }
 }
 
