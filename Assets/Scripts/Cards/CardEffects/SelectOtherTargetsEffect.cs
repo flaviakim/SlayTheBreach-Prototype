@@ -47,7 +47,14 @@ public abstract class SelectOtherTargetsEffect : ICardEffect {
 
     public abstract string EffectName { get; }
     public abstract string InstructionText { get; }
-    public abstract void StartEffect(CardEffectHandler handler);
+
+    public void StartEffect(CardEffectHandler handler) {
+        handler.OtherSelectedCreatures.Clear();
+        SelectedCreatures.Clear();
+        SelectionStartEffect(handler);
+    }
+
+    protected abstract void SelectionStartEffect(CardEffectHandler handler);
     public abstract void OnSelectedTile(CardEffectHandler handler, MapTile selectedTile, out bool effectFinished);
     public abstract void UpdateEffect(CardEffectHandler handler, out bool effectFinished);
     public abstract void EndEffect(CardEffectHandler handler);
@@ -57,12 +64,10 @@ public class PlayerSelectOtherTargetsEffect : SelectOtherTargetsEffect {
     public override string EffectName => "Target Selection";
     public override string InstructionText => $"Select {RemainingTargets} target{(RemainingTargets == 1 ? "" : "s")}";
 
-    public PlayerSelectOtherTargetsEffect(int targetCount, int rangeFromCardTarget, FactionRelationship relationship) : base(targetCount, rangeFromCardTarget, relationship) { }
+    public PlayerSelectOtherTargetsEffect(int targetCount, int rangeFromCardTarget, FactionRelationship relationship) : base(targetCount, rangeFromCardTarget,
+        relationship) { }
 
-    public override void StartEffect(CardEffectHandler handler) {
-        handler.OtherSelectedCreatures.Clear();
-        SelectedCreatures.Clear();
-    }
+    protected override void SelectionStartEffect(CardEffectHandler handler) { }
 
     public override void OnSelectedTile(CardEffectHandler handler, MapTile selectedTile, out bool effectFinished) {
         TryAddTileToSelection(handler, selectedTile);
@@ -87,23 +92,24 @@ public class AutoSelectAllOtherTargetsEffect : SelectOtherTargetsEffect {
 
     public AutoSelectAllOtherTargetsEffect(int rangeFromCardTarget, FactionRelationship relationship) : base(-1, rangeFromCardTarget, relationship) { }
 
-    public override void StartEffect(CardEffectHandler handler) {
-        handler.OtherSelectedCreatures.Clear();
+    protected override void SelectionStartEffect(CardEffectHandler handler) {
         foreach (var tile in Battle.CurrentBattle.BattleMap.GetTilesWhere(tile => IsTileValidTarget(handler, tile))) {
             TryAddTileToSelection(handler, tile);
         }
     }
+
     public override void OnSelectedTile(CardEffectHandler handler, MapTile selectedTile, out bool effectFinished) {
-        Debug.LogWarning("AutoSelectAllOtherTargetsEffect should not be waiting for player input");
+        // Debug.LogWarning("AutoSelectAllOtherTargetsEffect should not be waiting for player input");
         effectFinished = false;
     }
+
     public override void UpdateEffect(CardEffectHandler handler, out bool effectFinished) {
         effectFinished = true;
     }
+
     public override void EndEffect(CardEffectHandler handler) {
         Debug.Assert(SelectedCreatures.Count == handler.OtherSelectedCreatures.Count, "Selected creatures list should match handler's list");
     }
-
 }
 
 public enum FactionRelationship {
