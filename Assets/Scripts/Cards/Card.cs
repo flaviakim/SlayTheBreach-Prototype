@@ -1,5 +1,4 @@
 public class Card {
-
     public string CardName { get; }
     public string Description { get; }
 

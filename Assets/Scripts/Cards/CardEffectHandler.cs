@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 public class CardEffectHandler : MonoBehaviour {
-
     public event EventHandler<EffectEventArgs> OnEffectStarted;
     public event EventHandler<EffectEventArgs> OnEffectFinished;
     public event EventHandler<CardEventArgs> OnCardStarted;
@@ -26,6 +25,7 @@ public class CardEffectHandler : MonoBehaviour {
             Debug.LogError("CardEffectHandler already initialized");
             return;
         }
+
         Instance = this;
     }
 
@@ -61,8 +61,6 @@ public class CardEffectHandler : MonoBehaviour {
                 FinishUpCurrentEffect();
             }
         }
-
-
     }
 
     private void FinishUpCurrentEffect() {
@@ -82,11 +80,13 @@ public class CardEffectHandler : MonoBehaviour {
         if (IsPlayingEffect) {
             FinishUpCurrentEffect();
         }
+
         CurrentCardTarget = cardTarget;
         foreach (var effect in card.Effects) {
             Debug.Log($"Adding effect {effect.EffectName} from card {card.CardName}");
             EffectQueue.Enqueue(effect);
         }
+
         CurrentCard = card;
         OnCardStarted?.Invoke(this, new CardEventArgs(card, cardTarget));
         PlayNextEffect();
@@ -127,10 +127,9 @@ public class CardEffectHandler : MonoBehaviour {
         else {
             GUILayout.Label("No effect playing");
         }
+
         GUILayout.EndArea();
-
     }
-
 }
 
 public class CardEventArgs : EventArgs {

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerDeck {
-
     private readonly List<Card> _allPlayerCards = new();
 
     private readonly Queue<Card> _drawPile = new();

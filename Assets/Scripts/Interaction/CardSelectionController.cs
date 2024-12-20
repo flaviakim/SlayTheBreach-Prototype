@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 
 public class CardSelectionController : MonoBehaviour {
-
     private int? _selectedCardIndex = null;
 
     private void Update() {
@@ -15,12 +14,14 @@ public class CardSelectionController : MonoBehaviour {
 
         if (Input.GetMouseButtonUp(0) && _selectedCardIndex.HasValue) {
             var mouseWorldPosition = CameraController.Instance.GetMouseWorldPosition();
-            if (Battle.CurrentBattle.BattleMap.TryGetTile(mouseWorldPosition, out var clickedOnTile) && clickedOnTile.Occupant != null && clickedOnTile.Occupant.IsPlayerControlled) {
+            if (Battle.CurrentBattle.BattleMap.TryGetTile(mouseWorldPosition, out var clickedOnTile) && clickedOnTile.Occupant != null &&
+                clickedOnTile.Occupant.IsPlayerControlled) {
                 Debug.Log($"Playing card {_selectedCardIndex} on {clickedOnTile.Occupant}");
                 var success = Battle.CurrentBattle.PlayCard(_selectedCardIndex.Value, clickedOnTile.Occupant);
                 if (success) {
                     _selectedCardIndex = null;
-                } else {
+                }
+                else {
                     Debug.LogWarning("Failed to play card");
                 }
             }
@@ -36,8 +37,8 @@ public class CardSelectionController : MonoBehaviour {
             var card = handCards[i];
             GUILayout.Label($"{i + 1}: {card.CardName}{(i == _selectedCardIndex ? " (<-)" : "")}");
         }
+
         GUILayout.EndVertical();
         GUILayout.EndArea();
-
     }
 }
