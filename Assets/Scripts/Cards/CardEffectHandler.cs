@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class CardEffectHandler : MonoBehaviour {
 
-    public event Action<ICardEffect, Card> OnEffectStarted = null!;
-    public event Action<ICardEffect, Card> OnEffectFinished = null!;
-    public event Action<Card> OnCardStarted = null!;
-    public event Action<Card> OnCardFinished = null!;
+    public event EventHandler<EffectEventArgs> OnEffectStarted;
+    public event EventHandler<EffectEventArgs> OnEffectFinished;
+    public event EventHandler<CardEventArgs> OnCardStarted;
+    public event EventHandler<CardEventArgs> OnCardFinished;
 
     public CardEffectHandler Instance { get; private set; } = null!;
 
@@ -73,7 +73,7 @@ public class CardEffectHandler : MonoBehaviour {
 
         Debug.Log($"Finishing effect {CurrentEffect.EffectName}");
         CurrentEffect.EndEffect(this);
-        OnEffectFinished?.Invoke(CurrentEffect, CurrentCard);
+        OnEffectFinished?.Invoke(this, new EffectEventArgs(CurrentEffect, CurrentCard, CurrentCardTarget, OtherSelectedCreatures));
         CurrentEffect = null;
         PlayNextEffect();
     }
@@ -88,7 +88,7 @@ public class CardEffectHandler : MonoBehaviour {
             EffectQueue.Enqueue(effect);
         }
         CurrentCard = card;
-        OnCardStarted?.Invoke(card);
+        OnCardStarted?.Invoke(this, new CardEventArgs(card, cardTarget));
         PlayNextEffect();
     }
 
@@ -100,7 +100,7 @@ public class CardEffectHandler : MonoBehaviour {
 
         var effect = EffectQueue.Dequeue();
         CurrentEffect = effect;
-        OnEffectStarted?.Invoke(effect, CurrentCard);
+        OnEffectStarted?.Invoke(this, new EffectEventArgs(effect, CurrentCard, CurrentCardTarget, OtherSelectedCreatures));
         Debug.Log($"Starting effect {effect.EffectName}");
         effect.StartEffect(this);
 
@@ -108,9 +108,10 @@ public class CardEffectHandler : MonoBehaviour {
 
         void FinishUpCurrentCard() {
             Debug.Log($"Finished playing all effects");
+            OnCardFinished?.Invoke(this, new CardEventArgs(CurrentCard, CurrentCardTarget));
             CurrentCardTarget = null;
-            OnCardFinished?.Invoke(CurrentCard);
             CurrentCard = null;
+            OtherSelectedCreatures.Clear();
         }
     }
 
@@ -130,4 +131,28 @@ public class CardEffectHandler : MonoBehaviour {
 
     }
 
+}
+
+public class CardEventArgs : EventArgs {
+    public Card Card { get; }
+    public Creature Creature { get; }
+
+    public CardEventArgs(Card card, Creature creature) {
+        Card = card;
+        Creature = creature;
+    }
+}
+
+public class EffectEventArgs : EventArgs {
+    public ICardEffect Effect { get; }
+    public Card Card { get; }
+    public Creature TargetCreature { get; }
+    public List<Creature> OtherSelectedCreatures { get; }
+
+    public EffectEventArgs(ICardEffect effect, Card card, Creature targetCreature, List<Creature> otherSelectedCreatures) {
+        Effect = effect;
+        Card = card;
+        TargetCreature = targetCreature;
+        OtherSelectedCreatures = otherSelectedCreatures;
+    }
 }

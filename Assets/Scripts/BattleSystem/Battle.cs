@@ -36,7 +36,7 @@ public class Battle : MonoBehaviour {
         CardsManager.PlayerDeck.StartNewGame(startHandSize);
     }
 
-    private void OnCardFinishedPlaying(Card card) {
+    private void OnCardFinishedPlaying(object sender, CardEventArgs e) {
         // TODO for now we just draw more cards,
         if (CardsManager.PlayerDeck.HandCards.Count == 0) {
             CardsManager.PlayerDeck.DrawCards(startHandSize);
