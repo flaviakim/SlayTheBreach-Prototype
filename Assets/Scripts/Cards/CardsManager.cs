@@ -32,14 +32,14 @@ public class CardsManager : MonoBehaviour {
         _allCards.Add(new Card(
             "Slash",
             "Deal 5 damage to target creature",
-            new SelectOtherTargetsEffect(1, 1, FactionRelationship.Enemy),
+            new PlayerSelectOtherTargetsEffect(1, 1, FactionRelationship.Enemy),
             new DamageEffect(5)
         ));
 
         _allCards.Add(new Card(
             "Shoot Arrow",
             "Deal 3 damage to target creature",
-            new SelectOtherTargetsEffect(1, 7, FactionRelationship.Enemy),
+            new PlayerSelectOtherTargetsEffect(1, 7, FactionRelationship.Enemy),
             new DamageEffect(3)
         ));
 
@@ -47,6 +47,21 @@ public class CardsManager : MonoBehaviour {
             "Move",
             "Move 4 tiles",
             new MoveCardEffect(4)
+        ));
+
+        _allCards.Add(new Card(
+            "Charge",
+            "Move 3 tiles and deal 3 damage",
+            new MoveCardEffect(3),
+            new PlayerSelectOtherTargetsEffect(1, 1, FactionRelationship.Enemy),
+            new DamageEffect(3)
+        ));
+
+        _allCards.Add(new Card(
+            "Axe Swing",
+            "Deal 3 damage to all adjacent creatures",
+            new AutoSelectAllOtherTargetsEffect(1, FactionRelationship.Enemy),
+            new DamageEffect(3)
         ));
     }
 }
