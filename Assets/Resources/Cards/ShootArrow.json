@@ -1,0 +1,20 @@
+{
+  "CardName": "Shoot Arrow",
+  "Description": "Deal 3 damage to target creature",
+  "Effects": [
+    {
+      "Type": "PlayerSelectOtherTargetsEffect",
+      "Parameters": {
+        "TargetCount": 1,
+        "RangeFromCardTarget": 7,
+        "FactionRelationship": "Enemy"
+      }
+    },
+    {
+      "Type": "DamageEffect",
+      "Parameters": {
+        "DamageAmount": 3
+      }
+    }
+  ]
+}

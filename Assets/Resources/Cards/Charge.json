@@ -1,0 +1,26 @@
+{
+  "CardName": "Charge",
+  "Description": "Move 3 tiles and deal 3 damage",
+  "Effects": [
+    {
+      "Type": "MoveCardEffect",
+      "Parameters": {
+        "MoveDistance": 3
+      }
+    },
+    {
+      "Type": "PlayerSelectOtherTargetsEffect",
+      "Parameters": {
+        "TargetCount": 1,
+        "RangeFromCardTarget": 1,
+        "FactionRelationship": "Enemy"
+      }
+    },
+    {
+      "Type": "DamageEffect",
+      "Parameters": {
+        "DamageAmount": 3
+      }
+    }
+  ]
+}

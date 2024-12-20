@@ -1,0 +1,12 @@
+{
+  "CardName": "Move",
+  "Description": "Move 4 tiles",
+  "Effects": [
+    {
+      "Type": "MoveCardEffect",
+      "Parameters": {
+        "MoveDistance": 4
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "CardName": "Slash",
+  "Description": "Deal 5 damage",
+  "Effects": [
+    {
+      "Type": "PlayerSelectOtherTargetsEffect",
+      "Parameters": {
+        "TargetCount": 1,
+        "RangeFromCardTarget": 1,
+        "FactionRelationship": "Enemy"
+      }
+    },
+    {
+      "Type": "DamageEffect",
+      "Parameters": {
+        "DamageAmount": 5
+      }
+    }
+  ]
+}
