@@ -26,7 +26,7 @@ public class MoveCardEffect : ICardEffect {
         if (selectedTile.Occupant != null) {
             return;
         }
-        if (!currentCreature.MoveTo(selectedTile)) {
+        if (!currentCreature.TryMoveTo(selectedTile)) {
             return;
         }
 

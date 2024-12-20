@@ -10,6 +10,7 @@ public class Battle : MonoBehaviour {
     public BattleMap BattleMap { get; private set; } = null!;
     public CardsManager CardsManager { get; private set; } = null!;
     public CardEffectHandler CardEffectHandler { get; private set; } = null!;
+    public CreaturesManager CreaturesManager { get; private set; } = null!;
 
     // public static void StartBattle(CardsManager cardsManager, BattleMap battleMap) {
     //     CurrentBattle = new GameObject("CurrentBattle").AddComponent<Battle>();
@@ -27,6 +28,8 @@ public class Battle : MonoBehaviour {
         CardsManager = FindFirstObjectByType<CardsManager>();
         BattleMap = FindFirstObjectByType<BattleMap>();
         CardEffectHandler = FindFirstObjectByType<CardEffectHandler>();
+        CreaturesManager = FindFirstObjectByType<CreaturesManager>();
+
 
         CurrentBattle = this;
     }

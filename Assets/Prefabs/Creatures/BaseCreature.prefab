@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2402257102182358107}
-  - component: {fileID: 6909954497033340473}
   m_Layer: 0
   m_Name: BaseCreature
   m_TagString: Untagged
@@ -33,25 +32,6 @@ Transform:
   - {fileID: 8180097774820045649}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6909954497033340473
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1527596417568894996}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 344a2e84e10e45778ec17f61ecffbfd9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  creatureName: Creature
-  health: 10
-  strength: 1
-  defense: 1
-  rangedAttack: 1
-  speed: 1
-  faction: 0
 --- !u!1 &4380389778247375181
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,7 +109,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
-  m_Color: {r: 0, g: 1, b: 0.96201396, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

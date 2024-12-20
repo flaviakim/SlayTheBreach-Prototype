@@ -3,35 +3,29 @@ using UnityEngine;
 
 public class CreaturesInitializer : MonoBehaviour {
 
-    [SerializeField] private int playerCreaturesCount = 3;
-    [SerializeField] private int enemyCreaturesCount = 3;
-
-    [SerializeField] private Creature[] playerCreaturePrefabs;
-    [SerializeField] private Creature[] enemyCreaturePrefabs;
-
+    [SerializeField] private string[] enemyCreatureIdsToSpawn = Array.Empty<string>();
+    [SerializeField] private string[] playerCreatureIdsToSpawn = Array.Empty<string>();
 
     private void Start() {
         var map = Battle.CurrentBattle.BattleMap;
+        var creatureManager = Battle.CurrentBattle.CreaturesManager;
         if (map == null) {
             throw new Exception("BattleMap not found");
         }
-
-        for (int i = 0; i < playerCreaturesCount; i++) {
-            var creature = Instantiate(playerCreaturePrefabs[UnityEngine.Random.Range(0, playerCreaturePrefabs.Length)]);
-            creature.Initialize(GetRandomFreePosition(map, Faction.Player));
+        if (creatureManager == null) {
+            throw new Exception("CreaturesManager not found");
         }
 
-        for (int i = 0; i < enemyCreaturesCount; i++) {
-            var creature = Instantiate(enemyCreaturePrefabs[UnityEngine.Random.Range(0, enemyCreaturePrefabs.Length)]);
-            creature.Initialize(GetRandomFreePosition(map, Faction.Enemy));
+        foreach (var enemyCreatureId in enemyCreatureIdsToSpawn) {
+            creatureManager.SpawnCreature(enemyCreatureId, GetRandomFreePosition(map, Faction.Enemy));
+        }
+
+        foreach (var playerCreatureId in playerCreatureIdsToSpawn) {
+            creatureManager.SpawnCreature(playerCreatureId, GetRandomFreePosition(map, Faction.Player));
         }
 
         Debug.Log("Creatures initialized");
     }
-
-    // private void Update() {
-    //     Destroy(gameObject);
-    // }
 
     private MapTile GetRandomFreePosition(BattleMap map, Faction faction) {
         var validTiles = map.GetTilesWhere(tile => {

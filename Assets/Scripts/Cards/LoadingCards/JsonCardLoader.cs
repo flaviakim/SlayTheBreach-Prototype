@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using UnityEngine;
 
 public class JsonCardLoader : ICardLoader {
-    private const string CARDS_DIRECTORY = "Assets/Resources/Cards";
+    private const string CARDS_DIRECTORY_NAME = "Cards";
     private readonly EffectFactory _effectFactory;
 
     public JsonCardLoader() {
@@ -22,18 +23,26 @@ public class JsonCardLoader : ICardLoader {
     }
 
     public IEnumerable<Card> LoadAllCards() {
-        var cardFiles = Directory.GetFiles(CARDS_DIRECTORY, "*.json", SearchOption.AllDirectories);
+        var cardsDirectoryPath = Path.Combine(Application.streamingAssetsPath, CARDS_DIRECTORY_NAME);
+        if (!Directory.Exists(cardsDirectoryPath)) {
+            Debug.LogError($"Directory '{cardsDirectoryPath}' does not exist.");
+            return Enumerable.Empty<Card>();
+        }
+        var cardFiles = Directory.GetFiles(cardsDirectoryPath, "*.json", SearchOption.AllDirectories);
         return cardFiles.Select(LoadCardFromJson);
+    }
+
+    private class CardData {
+        public string CardName { get; set; }
+        public string Description { get; set; }
+        public List<EffectData> Effects { get; set; }
+    }
+
+    private class EffectData {
+        public string Type { get; set; }
+        public Dictionary<string, object> Parameters { get; set; }
     }
 }
 
-public class CardData {
-    public string CardName { get; set; }
-    public string Description { get; set; }
-    public List<EffectData> Effects { get; set; }
-}
 
-public class EffectData {
-    public string Type { get; set; }
-    public Dictionary<string, object> Parameters { get; set; }
-}
+
