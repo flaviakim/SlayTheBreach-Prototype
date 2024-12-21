@@ -20,7 +20,7 @@ public class EffectFactory {
 
             { "DamageEffect", parameters => new DamageEffect(Convert.ToInt32(parameters["DamageAmount"])) },
 
-            { "MoveCardEffect", parameters => new MoveCardEffect(Convert.ToInt32(parameters["MoveDistance"])) },
+            { "MoveCardEffect", parameters => new MoveEffect(Convert.ToInt32(parameters["MoveDistance"])) },
 
             // { "LuaScriptEffect", parameters => new LuaScriptEffect(parameters["Script"].ToString()) }
         };
