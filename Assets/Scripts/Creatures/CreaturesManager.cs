@@ -20,9 +20,11 @@ public class CreaturesManager : MonoBehaviour {
         Instance = this;
     }
 
+
+
     public Creature SpawnCreature(string creatureID, MapTile tile) {
         var creaturePrototype = _creatureLoader.GetCreaturePrototypeById(creatureID);
-        var creature = Creature.ClonePrototype(creaturePrototype, tile);
+        var creature = creaturePrototype.CreateInstance(tile);
         CreaturesInBattle.Add(creature);
         creature.DeathEvent += (sender, e) => {
             CreaturesInBattle.Remove(e.DeadCreature);

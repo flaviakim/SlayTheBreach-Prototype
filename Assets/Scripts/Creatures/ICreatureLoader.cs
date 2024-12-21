@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public interface ICreatureLoader {
     void LoadAllCreaturePrototypes(Transform parentTransform);
-    Creature GetCreaturePrototypeById(string creatureId);
-
-
+    PlayerCreaturePrototype GetPlayerCreaturePrototypeById(string creatureId);
+    AutonomousCreaturePrototype GetAutonomousCreaturePrototypeById(string creatureId);
 }
