@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 
 public class JsonCreatureLoader : ICreatureLoader {
-    private readonly Dictionary<string, Creature> _creatures = new();
+    private readonly Dictionary<string, CreaturePrototype> _creatures = new();
 
     public void LoadAllCreaturePrototypes(Transform parentTransform) {
         var creaturesDirectoryPath = Path.Combine(Application.streamingAssetsPath, "Creatures");
@@ -21,7 +21,7 @@ public class JsonCreatureLoader : ICreatureLoader {
         }
     }
 
-    public Creature GetCreaturePrototypeById(string creatureId) {
+    public CreaturePrototype GetCreaturePrototypeById(string creatureId) {
         if (!_creatures.TryGetValue(creatureId, out var creature)) {
             Debug.LogError($"Creature with ID {creatureId} not found");
             return null!;
@@ -30,10 +30,10 @@ public class JsonCreatureLoader : ICreatureLoader {
         return creature;
     }
 
-    private Creature LoadCreatureFromJson(string jsonFilePath, Transform parentTransform) {
+    private CreaturePrototype LoadCreatureFromJson(string jsonFilePath, Transform parentTransform) {
         var creatureData = JsonConvert.DeserializeObject<CreatureData>(File.ReadAllText(jsonFilePath));
         var sprite = AssetLoader.LoadSprite(creatureData.SpritePath);
-        var creature = new Creature(creatureData.CreatureId, creatureData.CreatureName, creatureData.Health, creatureData.Strength, creatureData.Defense,
+        var creature = new CreaturePrototype(creatureData.CreatureId, creatureData.CreatureName, creatureData.Health, creatureData.Strength, creatureData.Defense,
             creatureData.RangedAttack, creatureData.Speed, creatureData.Faction, sprite, parentTransform);
         Debug.Log($"Loaded creature: {creature.CreatureName}");
         return creature;

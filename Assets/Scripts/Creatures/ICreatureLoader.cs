@@ -3,7 +3,7 @@ using UnityEngine;
 
 public interface ICreatureLoader {
     void LoadAllCreaturePrototypes(Transform parentTransform);
-    Creature GetCreaturePrototypeById(string creatureId);
+    CreaturePrototype GetCreaturePrototypeById(string creatureId);
 
 
 }
