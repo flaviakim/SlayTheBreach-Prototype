@@ -18,12 +18,12 @@ public class DebugCardLoader : ICardLoader {
             new Card(
                 "Move",
                 "Move 4 tiles",
-                new MoveCardEffect(4)
+                new MoveEffect(4)
             ),
             new Card(
                 "Charge",
                 "Move 3 tiles and deal 3 damage",
-                new MoveCardEffect(3),
+                new MoveEffect(3),
                 new PlayerSelectOtherTargetsEffect(1, 1, FactionRelationship.Enemy),
                 new DamageEffect(3)
             ),
