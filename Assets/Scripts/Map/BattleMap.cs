@@ -75,4 +75,19 @@ public class BattleMap : MonoBehaviour {
         // manhattan distance
         return Mathf.Abs(tileA.Position.x - tileB.Position.x) + Mathf.Abs(tileA.Position.y - tileB.Position.y);
     }
+
+    public List<MapTile> GetTilesInRange(MapTile fromTile, int distance, Func<MapTile, bool> predicate = null) {
+        var result = new List<MapTile>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // If the map were ever to be bigger, we should probably use a more efficient way to find the tiles in range
+                var tile = _tiles[x, y];
+                if (DistanceBetweenTiles(fromTile, tile) <= distance && (predicate == null || predicate(tile))) {
+                    result.Add(tile);
+                }
+            }
+        }
+
+        return result;
+    }
 }

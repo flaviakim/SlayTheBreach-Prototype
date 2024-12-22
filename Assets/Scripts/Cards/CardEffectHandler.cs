@@ -3,40 +3,41 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
-public class CardEffectHandler : MonoBehaviour {
+public class CardEffectHandler {
     public event EventHandler<EffectEventArgs> OnEffectStarted;
     public event EventHandler<EffectEventArgs> OnEffectFinished;
     public event EventHandler<CardEventArgs> OnCardStarted;
     public event EventHandler<CardEventArgs> OnCardFinished;
 
-    public CardEffectHandler Instance { get; private set; } = null!;
+    public Battle Battle { get; }
+
+    public CardEffectHandler(Battle battle) {
+        Battle = battle;
+    }
 
     public Card CurrentCard { get; private set; } = null!;
     public Creature CurrentCardTarget { get; private set; } = null;
     public List<Creature> OtherSelectedCreatures { get; } = new();
 
+    public bool IsPlayingCard => CurrentCard != null;
     public bool IsPlayingEffect => CurrentEffect != null || EffectQueue.Count > 0;
     public readonly Queue<ICardEffect> EffectQueue = new();
     [CanBeNull] private ICardEffect CurrentEffect { get; set; } = null!;
 
-    private void Awake() {
-        if (Instance != null) {
-            Destroy(gameObject);
-            Debug.LogError("CardEffectHandler already initialized");
+    public void UpdateEffect() {
+        if (Battle.CurrentTurn != Faction.Player) {
+            Debug.LogError("Trying to update card effect handler, but it is not player's turn");
             return;
         }
+        if (!IsPlayingEffect) return;
 
-        Instance = this;
-    }
-
-    private void Update() {
-        if (CheckCardManuallyEnded()) return;
+        if (CheckEffectManuallyEnded()) return;
 
         CheckTileClicked();
         UpdateCurrentEffect();
         return;
 
-        bool CheckCardManuallyEnded() { // Player manually ends the card effect
+        bool CheckEffectManuallyEnded() { // Player manually ends the card effect
             if (CurrentEffect == null) return false;
             if (!Input.GetKeyDown(KeyCode.Space)) return false;
             FinishUpCurrentEffect();
@@ -77,8 +78,9 @@ public class CardEffectHandler : MonoBehaviour {
     }
 
     public void PlayCard(Card card, Creature cardTarget) {
-        if (IsPlayingEffect) {
-            FinishUpCurrentEffect();
+        if (CurrentCard != null) {
+            Debug.Log("Trying to play a card, but there is already a card playing, stopping current card. Probably intended behavior.");
+            StopCurrentCard();
         }
 
         CurrentCardTarget = cardTarget;
@@ -90,6 +92,17 @@ public class CardEffectHandler : MonoBehaviour {
         CurrentCard = card;
         OnCardStarted?.Invoke(this, new CardEventArgs(card, cardTarget));
         PlayNextEffect();
+    }
+
+    public void StopCurrentCard() {
+        if (CurrentCard == null) {
+            Debug.LogWarning("Trying to stop current card, but there is no current card");
+            return;
+        }
+
+        Debug.Log($"Stopping current card {CurrentCard.CardName}");
+        EffectQueue.Clear(); // To make sure FinishUpCurrentEffect doesn't play the next effect, but instead finishes the card
+        FinishUpCurrentEffect();
     }
 
     private void PlayNextEffect() {
@@ -116,8 +129,8 @@ public class CardEffectHandler : MonoBehaviour {
     }
 
 
-    private void OnGUI() {
-        GUILayout.BeginArea(new Rect(10, 10, 200, 100));
+    internal void OnGUI() {
+        GUILayout.BeginArea(new Rect(10, 50, 200, 100));
         if (CurrentEffect != null) {
             GUILayout.BeginVertical();
             GUILayout.Label(CurrentEffect.EffectName);

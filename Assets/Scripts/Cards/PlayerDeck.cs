@@ -19,7 +19,7 @@ public class PlayerDeck {
         _allPlayerCards.Remove(card);
     }
 
-    public void StartNewGame(int initialHandSize) {
+    public void InitializeNewGame(int initialHandSize) {
         _drawPile.Clear();
         _discardPile.Clear();
         _hand.Clear();
