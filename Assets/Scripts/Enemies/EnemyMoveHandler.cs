@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -52,9 +53,22 @@ public class EnemyMoveHandler {
                 _currentPhase = MovementPhase.Movement;
                 break;
             case MovementPhase.Movement:
-                enemyMove.Movement.UpdateMovement(Battle, enemy, out var movementFinished);
-                if (movementFinished) {
-                    _currentPhase = MovementPhase.Effect;
+                var newStatus = enemyMove.Movement.UpdateMovement(Battle, enemy);
+                switch (newStatus) {
+                    case IEnemyMovement.EnemyMovementStatus.NotStarted:
+                        Debug.LogWarning("Enemy movement not started");
+                        break;
+                    case IEnemyMovement.EnemyMovementStatus.InProgress:
+                        break;
+                    case IEnemyMovement.EnemyMovementStatus.FinishedSuccessfully:
+                        _currentPhase = MovementPhase.Effect;
+                        break;
+                    case IEnemyMovement.EnemyMovementStatus.Failed:
+                        Debug.LogWarning($"Enemy movement failed for {enemy.Name}. Skipping rest of the move");
+                        _currentPhase = MovementPhase.End;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
                 break;
             case MovementPhase.Effect:

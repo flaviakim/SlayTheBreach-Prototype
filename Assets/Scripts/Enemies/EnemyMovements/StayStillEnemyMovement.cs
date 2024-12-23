@@ -1,10 +1,12 @@
 using UnityEngine;
 
 public class StayStillEnemyMovement : IEnemyMovement {
+    public IEnemyMovement.EnemyMovementStatus Status { get; private set; } = IEnemyMovement.EnemyMovementStatus.NotStarted;
 
-    public void UpdateMovement(Battle battle, Enemy enemy, out bool movementFinished) {
+    public IEnemyMovement.EnemyMovementStatus UpdateMovement(Battle battle, Enemy enemy) {
         Debug.Log($"{enemy.Creature.CreatureName} stays still");
-        movementFinished = true;
+        Status = IEnemyMovement.EnemyMovementStatus.FinishedSuccessfully;
+        return Status;
     }
 
 }

@@ -1,14 +1,16 @@
 public class TeleportEnemyMovement : IEnemyMovement {
+    public MapTile TargetTile { get; }
 
-    public readonly MapTile TargetTile;
+    public IEnemyMovement.EnemyMovementStatus Status { get; private set; } = IEnemyMovement.EnemyMovementStatus.NotStarted;
 
     public TeleportEnemyMovement(MapTile targetTile) {
         TargetTile = targetTile;
     }
 
-    public void UpdateMovement(Battle battle, Enemy enemy, out bool movementFinished) {
-        enemy.Creature.TryMoveTo(TargetTile, true);
-        movementFinished = true;
+    public IEnemyMovement.EnemyMovementStatus UpdateMovement(Battle battle, Enemy enemy) {
+        var success = enemy.Creature.TryMoveTo(TargetTile, true);
+        Status = success ? IEnemyMovement.EnemyMovementStatus.FinishedSuccessfully : IEnemyMovement.EnemyMovementStatus.Failed;
+        return Status;
     }
 
 }

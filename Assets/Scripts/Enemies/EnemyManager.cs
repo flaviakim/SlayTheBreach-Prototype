@@ -7,14 +7,15 @@ public class EnemyManager {
 
     public event EventHandler OnLastEnemyDiedEvent;
 
-    public Battle Battle { get; }
     private readonly List<Enemy> _enemies = new();
     private int _currentEnemyIndex = 0;
     private readonly EnemyMoveHandler _enemyMoveHandler;
+    private readonly Battle _battle;
+
 
     public Enemy CurrentEnemy {
         get {
-            if (Battle.CurrentTurn != Faction.Enemy) {
+            if (_battle.CurrentTurn != Faction.Enemy) {
                 Debug.LogWarning("Trying to get current enemy, but it is not enemy's turn");
                 return null;
             }
@@ -27,12 +28,12 @@ public class EnemyManager {
     }
 
     public EnemyManager(Battle battle) {
-        Battle = battle;
+        _battle = battle;
         _enemyMoveHandler = new EnemyMoveHandler(battle);
     }
 
     public void SpawnEnemy(string enemyLogicId, string enemyCreatureId, MapTile spawnTile) {
-        var enemyCreature = Battle.CreaturesManager.SpawnCreature(enemyCreatureId, spawnTile);
+        var enemyCreature = _battle.CreaturesManager.SpawnCreature(enemyCreatureId, spawnTile);
         var enemyLogic = GetLogicById(enemyLogicId);
         var enemy = new Enemy(enemyCreature, enemyLogic);
         _enemies.Add(enemy);
@@ -41,17 +42,17 @@ public class EnemyManager {
 
     public void OnBattleStart() {
         Debug.Assert(_enemies.All(enemy => enemy.NextMove == null), "Trying to start battle, but enemies already have moves");
-        Debug.Assert(_enemies.Count == Battle.CreaturesManager.CreaturesInBattle.Count(creature => !creature.IsPlayerControlled), "Trying to start battle, but number of enemies does not match number of enemy creatures");
-        Debug.Assert(Battle.CreaturesManager.CreaturesInBattle.Where(creature => !creature.IsPlayerControlled).All(creature => _enemies.Any(enemy => enemy.Creature == creature)), "Trying to start battle, but not all enemy creatures are in the list of enemies");
+        Debug.Assert(_enemies.Count == _battle.CreaturesManager.CreaturesInBattle.Count(creature => !creature.IsPlayerControlled), "Trying to start battle, but number of enemies does not match number of enemy creatures");
+        Debug.Assert(_battle.CreaturesManager.CreaturesInBattle.Where(creature => !creature.IsPlayerControlled).All(creature => _enemies.Any(enemy => enemy.Creature == creature)), "Trying to start battle, but not all enemy creatures are in the list of enemies");
         foreach (var enemy in _enemies) {
-            enemy.ChooseNextMove(Battle);
+            enemy.ChooseNextMove(_battle);
         }
         Debug.Assert(_enemies.All(enemy => enemy.NextMove != null), "Trying to start battle, but enemies have no moves");
     }
 
     public void ChooseEnemyMoves() {
         foreach (var enemy in _enemies) {
-            enemy.ChooseNextMove(Battle);
+            enemy.ChooseNextMove(_battle);
         }
     }
 
@@ -66,7 +67,7 @@ public class EnemyManager {
     }
 
     public void UpdateEnemies() {
-        if (Battle.CurrentTurn != Faction.Enemy) return;
+        if (_battle.CurrentTurn != Faction.Enemy) return;
         if (CurrentEnemy == null) {
             Debug.LogError("Trying to update enemy manager, but there is no current enemy");
             return;
@@ -82,11 +83,11 @@ public class EnemyManager {
         Debug.Log($"Moving to next enemy {_currentEnemyIndex} -> {_currentEnemyIndex + 1} (total {_enemies.Count})");
         _currentEnemyIndex++;
         if (_currentEnemyIndex >= _enemies.Count) {
-            Battle.EndEnemyTurn();
+            _battle.EndEnemyTurn();
             return;
         }
 
-        Debug.Assert(Battle.CurrentTurn == Faction.Enemy, "Trying to start next enemy actionset, but it is not enemy's turn");
+        Debug.Assert(_battle.CurrentTurn == Faction.Enemy, "Trying to start next enemy actionset, but it is not enemy's turn");
         Debug.Assert(CurrentEnemy != null, "Trying to start next enemy actionset, but there is no current enemy");
         _enemyMoveHandler.StartEnemyMove(CurrentEnemy);
     }
