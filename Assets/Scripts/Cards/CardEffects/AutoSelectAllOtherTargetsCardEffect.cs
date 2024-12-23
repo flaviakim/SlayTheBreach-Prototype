@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class AutoSelectAllOtherTargetsCardCardEffect : SelectOtherTargetsCardEffect {
+public class AutoSelectAllOtherTargetsCardEffect : SelectOtherTargetsCardEffect {
     public override string EffectName => "Auto Target Selection";
     public override string InstructionText => null;
 
-    public AutoSelectAllOtherTargetsCardCardEffect(int rangeFromCardTarget, FactionRelationship relationship) : base(-1, rangeFromCardTarget, relationship) { }
+    public AutoSelectAllOtherTargetsCardEffect(int rangeFromCardTarget, FactionRelationship relationship) : base(-1, rangeFromCardTarget, relationship) { }
 
     protected override void SelectionStartEffect(CardEffectHandler handler) {
         foreach (var tile in Battle.CurrentBattle.BattleMap.GetTilesWhere(tile => IsTileValidTarget(handler, tile))) {

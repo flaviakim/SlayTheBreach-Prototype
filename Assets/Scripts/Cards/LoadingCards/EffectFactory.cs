@@ -8,19 +8,19 @@ public class EffectFactory {
     public EffectFactory() {
         _effectCreators = new Dictionary<string, Func<Dictionary<string, object>, ICardEffect>> {
             {
-                "PlayerSelectOtherTargetsEffect", parameters => new PlayerSelectOtherTargetsEffect(
+                "PlayerSelectOtherTargetsEffect", parameters => new PlayerSelectOtherTargetsCardCardEffect(
                     Convert.ToInt32(parameters["TargetCount"]),
                     Convert.ToInt32(parameters["RangeFromCardTarget"]),
                     Enum.Parse<FactionRelationship>(parameters["FactionRelationship"].ToString()))
             }, {
-                "AutoSelectAllOtherTargetsEffect", parameters => new AutoSelectAllOtherTargetsEffect(
+                "AutoSelectAllOtherTargetsEffect", parameters => new AutoSelectAllOtherTargetsCardEffect(
                     Convert.ToInt32(parameters["RangeFromCardTarget"]),
                     Enum.Parse<FactionRelationship>(parameters["FactionRelationship"].ToString()))
             },
 
-            { "DamageEffect", parameters => new DamageEffect(Convert.ToInt32(parameters["DamageAmount"])) },
+            { "DamageEffect", parameters => new DamageCardEffect(Convert.ToInt32(parameters["DamageAmount"])) },
 
-            { "MoveCardEffect", parameters => new MoveEffect(Convert.ToInt32(parameters["MoveDistance"])) },
+            { "MoveCardEffect", parameters => new MoveCardEffect(Convert.ToInt32(parameters["MoveDistance"])) },
 
             // { "LuaScriptEffect", parameters => new LuaScriptEffect(parameters["Script"].ToString()) }
         };
