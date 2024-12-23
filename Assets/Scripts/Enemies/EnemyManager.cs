@@ -48,11 +48,15 @@ public class EnemyManager {
             enemy.ChooseNextMove(_battle);
         }
         Debug.Assert(_enemies.All(enemy => enemy.NextMove != null), "Trying to start battle, but enemies have no moves");
+
+        _battle.OnPlayerHasPlayedCard += (sender, args) => ChooseEnemyMoves(updateOnly: true);
     }
 
-    public void ChooseEnemyMoves() {
+
+
+    public void ChooseEnemyMoves(bool updateOnly = false) {
         foreach (var enemy in _enemies) {
-            enemy.ChooseNextMove(_battle);
+            enemy.ChooseNextMove(_battle, updateOnly);
         }
     }
 

@@ -6,21 +6,21 @@ public class EnemyMoveHandler {
 
     private const float TIME_BETWEEN_ENEMY_MOVES = 1f;
 
-    public Battle Battle { get; }
+    private Battle _battle;
 
     [CanBeNull] public Enemy CurrentEnemy { get; private set; }
     private MovementPhase _currentPhase;
     private float _timeSinceLastMove = 0f;
 
     public EnemyMoveHandler(Battle battle) {
-        Battle = battle;
+        _battle = battle;
     }
 
     public void StartEnemyMove(Enemy enemy) {
         CurrentEnemy = enemy;
         if (enemy.NextMove == null) {
             Debug.LogError($"Enemy {enemy.Name} has no next turn, choosing new turn");
-            enemy.ChooseNextMove(Battle);
+            enemy.ChooseNextMove(_battle);
         }
         _currentPhase = MovementPhase.Initialization;
         _timeSinceLastMove = 0f;
@@ -53,7 +53,7 @@ public class EnemyMoveHandler {
                 _currentPhase = MovementPhase.Movement;
                 break;
             case MovementPhase.Movement:
-                var newStatus = enemyMove.Movement.UpdateMovement(Battle, enemy);
+                var newStatus = enemyMove.Movement.UpdateMovement(_battle, enemy);
                 switch (newStatus) {
                     case IEnemyMovement.EnemyMovementStatus.NotStarted:
                         Debug.LogWarning("Enemy movement not started");
@@ -72,7 +72,7 @@ public class EnemyMoveHandler {
                 }
                 break;
             case MovementPhase.Effect:
-                enemyMove.Effect.UpdateEffect(Battle, enemy, out var effectFinished);
+                enemyMove.Effect.UpdateEffect(_battle, enemy, out var effectFinished);
                 if (effectFinished) {
                     _currentPhase = MovementPhase.End;
                 }

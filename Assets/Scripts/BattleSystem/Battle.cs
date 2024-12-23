@@ -3,6 +3,9 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 public class Battle : MonoBehaviour {
+
+    public event EventHandler OnPlayerHasPlayedCard;
+
     [SerializeField] private int startHandSize = 5;
 
     public static Battle CurrentBattle { get; private set; } = null!;
@@ -90,11 +93,12 @@ public class Battle : MonoBehaviour {
             return false;
         }
 
-        if (!CardsManager.PlayerDeck.GetAndPlayCard(cardIndex, out var playedCard)) {
+        if (!CardsManager.PlayerDeck.GetCardAndRemoveFromHand(cardIndex, out var playedCard)) {
             return false;
         }
 
         CardEffectHandler.PlayCard(playedCard, creature);
+        OnPlayerHasPlayedCard?.Invoke(this, EventArgs.Empty);
 
         return true;
     }

@@ -16,7 +16,11 @@ public class Enemy {
         _logic = enemyLogic;
     }
 
-    public void ChooseNextMove(Battle battle) {
+    public void ChooseNextMove(Battle battle, bool updateOnly = false) {
+        if (updateOnly && NextMove != null && !_logic.UpdatesDuringPlayerMove) {
+            // If we are updating only and the logic does not update during player move, we don't need to update (but update still, if we have no move)
+            return;
+        }
         NextMove = _logic.ChooseMove(battle, this);
     }
 

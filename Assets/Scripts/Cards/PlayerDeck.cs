@@ -36,7 +36,7 @@ public class PlayerDeck {
         }
     }
 
-    public bool GetAndPlayCard(int index, out Card playedCard) {
+    public bool GetCardAndRemoveFromHand(int index, out Card playedCard) {
         if (index < 0 || index >= _hand.Count) {
             playedCard = null;
             return false;

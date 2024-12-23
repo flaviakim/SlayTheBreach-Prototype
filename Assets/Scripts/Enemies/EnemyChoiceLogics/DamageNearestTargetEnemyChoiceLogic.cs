@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class DamageNearestTargetEnemyChoiceLogic : IEnemyChoiceLogic {
 
+    public bool UpdatesDuringPlayerMove => true;
+
     public EnemyMove ChooseMove(Battle battle, Enemy enemy) {
         var enemyTile = enemy.Creature.CurrentTile;
         var targetTile = battle.BattleMap.GetTilesInRange(enemyTile, enemy.MovementRange + 1,
