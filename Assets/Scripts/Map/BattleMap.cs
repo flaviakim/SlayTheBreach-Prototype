@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -71,23 +72,46 @@ public class BattleMap : MonoBehaviour {
         return result;
     }
 
-    public static int DistanceBetweenTiles(MapTile tileA, MapTile tileB) {
+    public int GetDistanceBetweenTiles([NotNull] MapTile tileA, [NotNull] MapTile tileB) {
         // manhattan distance
+        Debug.Assert(tileA.Map == this, "TileA is not on this map");
+        Debug.Assert(tileB.Map == this, "TileB is not on this map");
         return Mathf.Abs(tileA.Position.x - tileB.Position.x) + Mathf.Abs(tileA.Position.y - tileB.Position.y);
     }
 
-    public List<MapTile> GetTilesInRange(MapTile fromTile, int distance, Func<MapTile, bool> predicate = null) {
+    public List<MapTile> GetTilesInRange(MapTile fromTile, int distance, Func<MapTile, bool> predicate = null, bool includeFromTile = false) {
         var result = new List<MapTile>();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 // If the map were ever to be bigger, we should probably use a more efficient way to find the tiles in range
                 var tile = _tiles[x, y];
-                if (DistanceBetweenTiles(fromTile, tile) <= distance && (predicate == null || predicate(tile))) {
+                if (!includeFromTile && tile == fromTile) {
+                    continue;
+                }
+                if (GetDistanceBetweenTiles(fromTile, tile) <= distance && (predicate == null || predicate(tile))) {
                     result.Add(tile);
                 }
             }
         }
 
         return result;
+    }
+
+    public List<MapTile> GetPathBetweenTiles(MapTile startTile, MapTile endTile, bool stopNextToTarget, int maxMovement) {
+        // TODO DEBUG for now we just return the end tile, but we should add pathfinding at some point
+        MapTile actualEndTile;
+        if (!stopNextToTarget) {
+            actualEndTile = endTile;
+        }
+        else {
+            var possibleEndTiles = GetTilesInRange(endTile, 1, tile => !tile.IsOccupied);
+            actualEndTile = possibleEndTiles.FirstOrDefault();
+        }
+
+        if (actualEndTile == null) {
+            return new List<MapTile>();
+        }
+
+        return new List<MapTile> { actualEndTile };
     }
 }

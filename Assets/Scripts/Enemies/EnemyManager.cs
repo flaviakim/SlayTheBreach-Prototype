@@ -1,74 +1,57 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using UnityEngine;
 
 public class EnemyManager {
-    public Battle Battle { get; }
-    private readonly List<Creature> _enemies = new();
-    private int _currentEnemyIndex = 0;
-    private readonly EnemyActionHandler _enemyActionHandler;
 
-    [CanBeNull] public Creature CurrentEnemy {
+    public event EventHandler OnLastEnemyDiedEvent;
+
+    public Battle Battle { get; }
+    private readonly List<Enemy> _enemies = new();
+    private int _currentEnemyIndex = 0;
+    private readonly EnemyMoveHandler _enemyMoveHandler;
+
+    public Enemy CurrentEnemy {
         get {
             if (Battle.CurrentTurn != Faction.Enemy) {
                 Debug.LogWarning("Trying to get current enemy, but it is not enemy's turn");
                 return null;
             }
             if (_enemies.Count == 0) {
+                Debug.LogWarning("Trying to get current enemy, but there are no enemies");
                 return null;
             }
-            else {
-                return _enemies[_currentEnemyIndex];
-            }
+            return _enemies[_currentEnemyIndex];
         }
     }
-
-    private EnemyActionSet DebugEnemyActionSet => new(
-        "DebugEnemyActionSet",
-        "Debug enemy action set",
-        new RandomMeleeTargetSelectionEnemyAction(),
-        new DamageEnemyAction(5)
-    );
 
     public EnemyManager(Battle battle) {
         Battle = battle;
-        _enemyActionHandler = new EnemyActionHandler(battle);
+        _enemyMoveHandler = new EnemyMoveHandler(battle);
     }
 
-    public void UpdateEnemies() {
-        if (Battle.CurrentTurn != Faction.Enemy) return;
-        if (CurrentEnemy == null) {
-            Debug.LogError("Trying to update enemy manager, but there is no current enemy");
-            return;
-        }
-
-        _enemyActionHandler.UpdateCurrentEnemyActionSet(out var moveSetGotFinished);
-        if (moveSetGotFinished) {
-            MoveToNextEnemy();
-        }
+    public void SpawnEnemy(string enemyLogicId, string enemyCreatureId, MapTile spawnTile) {
+        var enemyCreature = Battle.CreaturesManager.SpawnCreature(enemyCreatureId, spawnTile);
+        var enemyLogic = GetLogicById(enemyLogicId);
+        var enemy = new Enemy(enemyCreature, enemyLogic);
+        _enemies.Add(enemy);
+        enemyCreature.DeathEvent += OnEnemyDeath;
     }
-
 
     public void OnBattleStart() {
-        foreach (var enemyCreature in Battle.CreaturesManager.CreaturesInBattle.Where(creature => creature.Faction == Faction.Enemy)) {
-            _enemies.Add(enemyCreature);
-            enemyCreature.DeathEvent += OnEnemyDeath;
+        Debug.Assert(_enemies.All(enemy => enemy.NextMove == null), "Trying to start battle, but enemies already have moves");
+        Debug.Assert(_enemies.Count == Battle.CreaturesManager.CreaturesInBattle.Count(creature => !creature.IsPlayerControlled), "Trying to start battle, but number of enemies does not match number of enemy creatures");
+        Debug.Assert(Battle.CreaturesManager.CreaturesInBattle.Where(creature => !creature.IsPlayerControlled).All(creature => _enemies.Any(enemy => enemy.Creature == creature)), "Trying to start battle, but not all enemy creatures are in the list of enemies");
+        foreach (var enemy in _enemies) {
+            enemy.ChooseNextMove(Battle);
         }
+        Debug.Assert(_enemies.All(enemy => enemy.NextMove != null), "Trying to start battle, but enemies have no moves");
     }
 
-    private void OnEnemyDeath(object sender, DeathEventArgs e) {
-        var deadEnemyIndex = _enemies.IndexOf(e.DeadCreature);
-        if (deadEnemyIndex == -1) {
-            Debug.LogError("Trying to remove dead enemy, but it is not in the list of enemies");
-            return;
-        }
-        _enemies.RemoveAt(deadEnemyIndex);
-        if (_currentEnemyIndex > deadEnemyIndex) {
-            _currentEnemyIndex--;
-        }
-        if (_enemies.Count == 0) {
-            Debug.Log("EnemyManager - All enemies are dead");
+    public void ChooseEnemyMoves() {
+        foreach (var enemy in _enemies) {
+            enemy.ChooseNextMove(Battle);
         }
     }
 
@@ -82,6 +65,19 @@ public class EnemyManager {
         MoveToNextEnemy();
     }
 
+    public void UpdateEnemies() {
+        if (Battle.CurrentTurn != Faction.Enemy) return;
+        if (CurrentEnemy == null) {
+            Debug.LogError("Trying to update enemy manager, but there is no current enemy");
+            return;
+        }
+
+        _enemyMoveHandler.UpdateCurrentEnemyMove(out var moveGotFinished);
+        if (moveGotFinished) {
+            MoveToNextEnemy();
+        }
+    }
+
     private void MoveToNextEnemy() {
         Debug.Log($"Moving to next enemy {_currentEnemyIndex} -> {_currentEnemyIndex + 1} (total {_enemies.Count})");
         _currentEnemyIndex++;
@@ -89,9 +85,31 @@ public class EnemyManager {
             Battle.EndEnemyTurn();
             return;
         }
+
         Debug.Assert(Battle.CurrentTurn == Faction.Enemy, "Trying to start next enemy actionset, but it is not enemy's turn");
         Debug.Assert(CurrentEnemy != null, "Trying to start next enemy actionset, but there is no current enemy");
-        _enemyActionHandler.StartEnemyActionSet(CurrentEnemy, DebugEnemyActionSet);
+        _enemyMoveHandler.StartEnemyMove(CurrentEnemy);
     }
 
+    private void OnEnemyDeath(object sender, DeathEventArgs e) {
+        var deadEnemyIndex = _enemies.FindIndex(enemy => enemy.Creature == e.DeadCreature);
+        if (deadEnemyIndex == -1) {
+            Debug.LogError("Trying to remove dead enemy, but it is not in the list of enemies");
+            return;
+        }
+        _enemies.RemoveAt(deadEnemyIndex);
+        if (_currentEnemyIndex > deadEnemyIndex) {
+            _currentEnemyIndex--;
+        }
+        if (_enemies.Count == 0) {
+            Debug.Log("EnemyManager - All enemies are dead");
+            OnLastEnemyDiedEvent?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private IEnemyChoiceLogic GetLogicById(string enemyLogicId) {
+        Debug.LogWarning("Enemy logic not implemented, using default");
+        return new DamageNearestTargetEnemyChoiceLogic();
+    }
 }
+

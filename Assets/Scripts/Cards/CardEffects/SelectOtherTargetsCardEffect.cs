@@ -26,7 +26,7 @@ public abstract class SelectOtherTargetsCardEffect : ICardEffect {
             FactionRelationship.All => true,
             _ => throw new ArgumentOutOfRangeException()
         };
-        var inRange = BattleMap.DistanceBetweenTiles(handler.CurrentCardTarget!.CurrentTile, tile) <= RangeFromCardTarget;
+        var inRange = handler.Battle.BattleMap.GetDistanceBetweenTiles(handler.CurrentCardTarget!.CurrentTile, tile) <= RangeFromCardTarget;
         return validTarget && inRange;
     }
 

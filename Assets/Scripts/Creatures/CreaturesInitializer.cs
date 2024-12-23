@@ -9,6 +9,7 @@ public class CreaturesInitializer : MonoBehaviour {
     private void Start() {
         var map = Battle.CurrentBattle.BattleMap;
         var creatureManager = Battle.CurrentBattle.CreaturesManager;
+        var enemyManager = Battle.CurrentBattle.EnemyManager;
         if (map == null) {
             throw new Exception("BattleMap not found");
         }
@@ -17,7 +18,7 @@ public class CreaturesInitializer : MonoBehaviour {
         }
 
         foreach (var enemyCreatureId in enemyCreatureIdsToSpawn) {
-            creatureManager.SpawnCreature(enemyCreatureId, GetRandomFreePosition(map, Faction.Enemy));
+            enemyManager.SpawnEnemy("Debug", enemyCreatureId, GetRandomFreePosition(map, Faction.Enemy));
         }
 
         foreach (var playerCreatureId in playerCreatureIdsToSpawn) {

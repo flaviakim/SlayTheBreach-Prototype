@@ -41,11 +41,11 @@ public class Creature {
         Debug.Assert(CurrentTile.Occupant == this, "Creature not set as the occupant of the tile");
     }
 
-    public bool TryMoveTo([NotNull] MapTile tile) {
+    public bool TryMoveTo([NotNull] MapTile tile, bool allowTeleport = false) {
         // if we don't have a current tile, it's just initialization we can skip steps 1 & 2, checks must be made in where we call this method
         if (CurrentTile != null) {
             // 1. check if we can move to the new tile
-            if (!CanMoveTo(tile)) {
+            if (!CanMoveTo(tile, allowTeleport)) {
                 return false;
             }
 
@@ -62,12 +62,12 @@ public class Creature {
         return true;
     }
 
-    public bool CanMoveTo(MapTile tile) {
+    public bool CanMoveTo(MapTile tile, bool allowTeleport) {
         if (tile.IsOccupied) {
             return false;
         }
 
-        if (Vector2Int.Distance(Position, tile.Position) > 1) {
+        if (!allowTeleport && Vector2Int.Distance(Position, tile.Position) > 1) {
             Debug.Log($"Trying to move too far in one step, from {Position} to {tile.Position}");
             return false;
         }

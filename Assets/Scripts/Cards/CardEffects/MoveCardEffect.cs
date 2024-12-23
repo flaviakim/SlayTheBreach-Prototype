@@ -20,7 +20,7 @@ public class MoveCardEffect : ICardEffect {
         effectFinished = false;
         var currentCreature = handler.CurrentCardTarget;
         var currentTile = handler.CurrentCardTarget.CurrentTile;
-        if (BattleMap.DistanceBetweenTiles(handler.CurrentCardTarget.CurrentTile, selectedTile) != 1) {
+        if (handler.Battle.BattleMap.GetDistanceBetweenTiles(handler.CurrentCardTarget.CurrentTile, selectedTile) != 1) {
             return;
         }
         if (selectedTile.Occupant != null) {

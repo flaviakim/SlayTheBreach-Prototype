@@ -71,6 +71,7 @@ public class Battle : MonoBehaviour {
         }
 
         CurrentTurn = Faction.Player;
+        EnemyManager.ChooseEnemyMoves();
         CardsManager.PlayerDeck.DrawCards(startHandSize);
     }
 
