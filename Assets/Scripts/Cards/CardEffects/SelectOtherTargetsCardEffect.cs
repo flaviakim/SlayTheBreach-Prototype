@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class SelectOtherTargetsEffect : ICardEffect {
+public abstract class SelectOtherTargetsCardEffect : ICardEffect {
     public int TargetCount { get; }
     public int RangeFromCardTarget { get; }
     public FactionRelationship Relationship { get; }
@@ -10,7 +10,7 @@ public abstract class SelectOtherTargetsEffect : ICardEffect {
     protected readonly List<Creature> SelectedCreatures = new();
     protected int RemainingTargets => TargetCount - SelectedCreatures.Count;
 
-    public SelectOtherTargetsEffect(int targetCount, int rangeFromCardTarget, FactionRelationship relationship) {
+    public SelectOtherTargetsCardEffect(int targetCount, int rangeFromCardTarget, FactionRelationship relationship) {
         TargetCount = targetCount;
         RangeFromCardTarget = rangeFromCardTarget;
         Relationship = relationship;

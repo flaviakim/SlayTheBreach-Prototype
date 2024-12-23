@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class MoveEffect : ICardEffect {
+public class MoveCardEffect : ICardEffect {
     public string EffectName => "Move";
     public string InstructionText => "Select a tile to move to";
 
     public int Range { get; }
     public int RemainingMoves { get; private set; }
 
-    public MoveEffect(int range) {
+    public MoveCardEffect(int range) {
         Range = range;
     }
 

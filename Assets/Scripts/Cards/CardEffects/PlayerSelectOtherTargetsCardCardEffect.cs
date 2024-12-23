@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class PlayerSelectOtherTargetsEffect : SelectOtherTargetsEffect {
+public class PlayerSelectOtherTargetsCardCardEffect : SelectOtherTargetsCardEffect {
     public override string EffectName => "Target Selection";
     public override string InstructionText => $"Select {RemainingTargets} target{(RemainingTargets == 1 ? "" : "s")}";
 
-    public PlayerSelectOtherTargetsEffect(int targetCount, int rangeFromCardTarget, FactionRelationship relationship) : base(targetCount, rangeFromCardTarget,
+    public PlayerSelectOtherTargetsCardCardEffect(int targetCount, int rangeFromCardTarget, FactionRelationship relationship) : base(targetCount, rangeFromCardTarget,
         relationship) { }
 
     protected override void SelectionStartEffect(CardEffectHandler handler) { }

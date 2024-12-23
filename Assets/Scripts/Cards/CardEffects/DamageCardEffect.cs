@@ -1,10 +1,10 @@
-public class DamageEffect : ICardEffect {
+public class DamageCardEffect : ICardEffect {
     public int Damage { get; }
 
     public string EffectName => "Damage";
     public string InstructionText => null;
 
-    public DamageEffect(int damage) {
+    public DamageCardEffect(int damage) {
         Damage = damage;
     }
 
