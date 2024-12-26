@@ -29,7 +29,7 @@ public class MapHoverVisual : MonoBehaviour {
         var occupant = infoTile.Occupant;
         if (occupant != null) {
             stringBuilder.AppendLine($"{occupant.CreatureName}");
-            stringBuilder.AppendLine($"HP: {occupant.Health}");
+            stringBuilder.AppendLine($"HP: {occupant.CurrentHealth}/{occupant.BaseHealth}");
             stringBuilder.AppendLine($"Strength: {occupant.Strength}");
             stringBuilder.AppendLine($"Defense: {occupant.Defense}");
             stringBuilder.AppendLine($"Ranged Attack: {occupant.RangedAttack}");
