@@ -1,7 +1,7 @@
 {
   "CreatureId": "goblin",
   "CreatureName": "Goblin",
-  "Health": 5,
+  "BaseHealth": 5,
   "Strength": 2,
   "Defense": 1,
   "RangedAttack": 0,

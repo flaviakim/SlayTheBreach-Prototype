@@ -9,32 +9,27 @@ public class Creature {
     public MapTile CurrentTile { get; private set; } = null!;
     public Vector2Int Position => CurrentTile.Position;
 
-    public string CreatureId { get; }
-    public string CreatureName { get; }
+    private readonly CreatureData _data;
+    public string CreatureId => _data.CreatureId;
+    public string CreatureName => _data.CreatureName;
+    public int BaseHealth => _data.BaseHealth;
+    public int Strength => _data.Strength;
+    public int Defense => _data.Defense;
+    public int RangedAttack => _data.RangedAttack;
+    public int Speed => _data.Speed;
 
-    public int Health { get; private set; }
-    public int Strength { get; }
-    public int Defense { get; }
-    public int RangedAttack { get; }
-    public int Speed { get; }
-
-    public Faction Faction { get; }
+    public Faction Faction => _data.Faction;
     public bool IsPlayerControlled => Faction == Faction.Player;
+    public int CurrentHealth { get; private set; }
 
     private readonly GameObject _gameObject;
 
     public Creature(CreaturePrototype prototype, MapTile tile) {
-        CreatureId = prototype.CreatureId;
-        CreatureName = prototype.CreatureName;
-        Health = prototype.Health;
-        Strength = prototype.Strength;
-        Defense = prototype.Defense;
-        RangedAttack = prototype.RangedAttack;
-        Speed = prototype.Speed;
-        Faction = prototype.Faction;
+        _data = new CreatureData(prototype.Data);
+
+        CurrentHealth = BaseHealth;
 
         _gameObject = prototype.CloneGameObject(this, tile);
-
 
         TryMoveTo(tile);
         Debug.Assert(CurrentTile == tile, "Creature not moved to the correct tile");
@@ -87,9 +82,9 @@ public class Creature {
             return;
         }
 
-        Health -= damage;
-        Debug.Log($"{CreatureName} takes {damage} damage, now has {Health} health");
-        if (Health <= 0) {
+        CurrentHealth -= damage;
+        Debug.Log($"{CreatureName} takes {damage} damage, now has {CurrentHealth} health");
+        if (CurrentHealth <= 0) {
             Die();
         }
     }
@@ -100,6 +95,46 @@ public class Creature {
         CurrentTile.Occupant = null;
         CurrentTile = null;
         Object.Destroy(_gameObject);
+    }
+
+    public class CreatureData {
+        public string CreatureId;
+        public string CreatureName;
+        public int BaseHealth;
+        public int Strength;
+        public int Defense;
+        public int RangedAttack;
+        public int Speed;
+        public Faction Faction;
+        public string SpritePath;
+
+        public CreatureData(string creatureId, string creatureName, int baseHealth, int strength, int defense, int rangedAttack, int speed, Faction faction, string spritePath) {
+            CreatureId = creatureId;
+            CreatureName = creatureName;
+            BaseHealth = baseHealth;
+            Strength = strength;
+            Defense = defense;
+            RangedAttack = rangedAttack;
+            Speed = speed;
+            Faction = faction;
+            SpritePath = spritePath;
+        }
+
+        public CreatureData(CreatureData other) {
+            CreatureId = other.CreatureId;
+            CreatureName = other.CreatureName;
+            BaseHealth = other.BaseHealth;
+            Strength = other.Strength;
+            Defense = other.Defense;
+            RangedAttack = other.RangedAttack;
+            Speed = other.Speed;
+            Faction = other.Faction;
+            SpritePath = other.SpritePath;
+        }
+
+        public CreatureData() {
+
+        }
     }
 }
 

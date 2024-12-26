@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -30,26 +31,27 @@ public class JsonCreatureLoader : ICreatureLoader {
         return creature;
     }
 
-    private CreaturePrototype LoadCreatureFromJson(string jsonFilePath, Transform parentTransform) {
-        var creatureData = JsonConvert.DeserializeObject<CreatureData>(File.ReadAllText(jsonFilePath));
-        var sprite = AssetLoader.LoadSprite(creatureData.SpritePath);
-        var creature = new CreaturePrototype(creatureData.CreatureId, creatureData.CreatureName, creatureData.Health, creatureData.Strength, creatureData.Defense,
-            creatureData.RangedAttack, creatureData.Speed, creatureData.Faction, sprite, parentTransform);
+    public CreaturePrototype LoadCreatureFromJson(string jsonFilePath, Transform parentTransform) {
+        var creatureData = JsonConvert.DeserializeObject<Creature.CreatureData>(File.ReadAllText(jsonFilePath));
+        var creature = new CreaturePrototype(creatureData, parentTransform);
         Debug.Log($"Loaded creature: {creature.CreatureName}");
         return creature;
     }
 
-
-
-    private class CreatureData {
-        public string CreatureId;
-        public string CreatureName;
-        public int Health;
-        public int Strength;
-        public int Defense;
-        public int RangedAttack;
-        public int Speed;
-        public Faction Faction;
-        public string SpritePath;
+    public bool TrySaveCreatureData([NotNull] Creature.CreatureData creatureData, bool overwrite) {
+        if (string.IsNullOrEmpty(creatureData.CreatureId)) {
+            Debug.LogWarning("Creature ID cannot be null or empty.");
+            return false;
+        }
+        var json = JsonConvert.SerializeObject(creatureData, Formatting.Indented);
+        var creatureFilePath = Path.Combine(Application.streamingAssetsPath, "Creatures", $"{creatureData.CreatureId}.json");
+        if (File.Exists(creatureFilePath) && !overwrite) {
+            Debug.LogWarning($"Creature with ID {creatureData.CreatureId} already exists.");
+            return false;
+        }
+        File.WriteAllText(creatureFilePath, json);
+        return true;
     }
 }
+
+

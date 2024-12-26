@@ -1,7 +1,7 @@
 {
   "CreatureId": "fighter",
   "CreatureName": "Fighter",
-  "Health": 10,
+  "BaseHealth": 10,
   "Strength": 3,
   "Defense": 1,
   "RangedAttack": 1,
