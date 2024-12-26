@@ -1,0 +1,11 @@
+{
+  "CreatureId": "test",
+  "CreatureName": "Test Creature",
+  "BaseHealth": 2,
+  "Strength": 2,
+  "Defense": 2,
+  "RangedAttack": 2,
+  "Speed": 2,
+  "Faction": 1,
+  "SpritePath": "goblin.png"
+}
