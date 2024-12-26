@@ -18,7 +18,7 @@ public class DamageNearestTargetEnemyChoiceLogic : IEnemyChoiceLogic {
 
         var tileNextToTarget = battle.BattleMap
             .GetTilesInRange(targetTile, 1, includeFromTile: false)
-            .Where(tile => enemy.Creature.CanMoveTo(tile, true))
+            .Where(tile => enemy.Creature.CanMoveTo(tile, true) || tile == enemyTile) // tile == enemyTile is for the case when the enemy is already next to the target
             .FirstOrDefault(tile => battle.BattleMap.GetDistanceBetweenTiles(enemyTile, tile) <= enemy.MovementRange);
         Debug.Assert(tileNextToTarget != null);
 
