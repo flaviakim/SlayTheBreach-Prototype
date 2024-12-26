@@ -33,6 +33,10 @@ public class JsonCreatureLoader : ICreatureLoader {
 
     public CreaturePrototype LoadCreatureFromJson(string jsonFilePath, Transform parentTransform) {
         var creatureData = JsonConvert.DeserializeObject<Creature.CreatureData>(File.ReadAllText(jsonFilePath));
+        if (creatureData == null) {
+            Debug.LogError($"Failed to load creature from file: {jsonFilePath}");
+            return null!;
+        }
         var creature = new CreaturePrototype(creatureData, parentTransform);
         Debug.Log($"Loaded creature: {creature.CreatureName}");
         return creature;
@@ -50,6 +54,7 @@ public class JsonCreatureLoader : ICreatureLoader {
             return false;
         }
         File.WriteAllText(creatureFilePath, json);
+        Debug.Log($"Saved creature data to {creatureFilePath}");
         return true;
     }
 }

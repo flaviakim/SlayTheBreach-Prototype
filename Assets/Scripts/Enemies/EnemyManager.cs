@@ -113,7 +113,7 @@ public class EnemyManager {
     }
 
     private IEnemyChoiceLogic GetLogicById(string enemyLogicId) {
-        Debug.LogWarning("Enemy logic not implemented, using default");
+        Debug.Log("Enemy logic retrieving in GetLogicById not implemented, using default");
         return new DamageNearestTargetEnemyChoiceLogic();
     }
 }

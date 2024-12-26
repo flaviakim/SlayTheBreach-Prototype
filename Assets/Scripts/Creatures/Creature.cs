@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -29,7 +30,7 @@ public class Creature {
 
         CurrentHealth = BaseHealth;
 
-        _gameObject = prototype.CloneGameObject(this, tile);
+        _gameObject = prototype.CloneGameObject();
 
         TryMoveTo(tile);
         Debug.Assert(CurrentTile == tile, "Creature not moved to the correct tile");
@@ -98,16 +99,17 @@ public class Creature {
     }
 
     public class CreatureData {
-        public string CreatureId;
-        public string CreatureName;
-        public int BaseHealth;
-        public int Strength;
-        public int Defense;
-        public int RangedAttack;
-        public int Speed;
-        public Faction Faction;
-        public string SpritePath;
+        public readonly string CreatureId;
+        public readonly string CreatureName;
+        public readonly int BaseHealth;
+        public readonly int Strength;
+        public readonly int Defense;
+        public readonly int RangedAttack;
+        public readonly int Speed;
+        public readonly Faction Faction;
+        public readonly string SpritePath;
 
+        [JsonConstructor]
         public CreatureData(string creatureId, string creatureName, int baseHealth, int strength, int defense, int rangedAttack, int speed, Faction faction, string spritePath) {
             CreatureId = creatureId;
             CreatureName = creatureName;
@@ -133,7 +135,15 @@ public class Creature {
         }
 
         public CreatureData() {
-
+            CreatureId = "";
+            CreatureName = "";
+            BaseHealth = 0;
+            Strength = 0;
+            Defense = 0;
+            RangedAttack = 0;
+            Speed = 0;
+            Faction = Faction.Player;
+            SpritePath = "";
         }
     }
 }

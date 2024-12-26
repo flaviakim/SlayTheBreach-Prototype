@@ -17,7 +17,7 @@ public class CreaturePrototype {
 
     private readonly GameObject _prototypeGameObject;
 
-    public CreaturePrototype(Creature.CreatureData data, [CanBeNull] Transform parentTransform) {
+    public CreaturePrototype([NotNull] Creature.CreatureData data, [CanBeNull] Transform parentTransform) {
         Data = new Creature.CreatureData(data);
 
         // TODO this could be created by a factory class.
@@ -30,13 +30,13 @@ public class CreaturePrototype {
     }
 
 
-    public Creature CreateInstance(MapTile tile) {
+    public Creature CreateInstance([NotNull] MapTile tile) {
         var creature = new Creature(this, tile);
 
         return creature;
     }
 
-    public GameObject CloneGameObject(Creature creature, MapTile tile) {
+    public GameObject CloneGameObject() {
         var clonedGameObject = Object.Instantiate(_prototypeGameObject, _prototypeGameObject.transform.parent, true);
         clonedGameObject.name = $"{CreatureName} ({CreatureId})";
         clonedGameObject.SetActive(true);

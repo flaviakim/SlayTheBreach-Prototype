@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,7 +7,6 @@ public class CreatureEditorUICreator : MonoBehaviour {
 
     private UIDocument _uiDocument;
     private readonly JsonCreatureLoader _jsonCreatureLoader = new();
-    private Creature.CreatureData _creatureData;
 
     private void Awake() {
         if (!TryGetComponent(out _uiDocument)) {
@@ -19,7 +19,7 @@ public class CreatureEditorUICreator : MonoBehaviour {
         GenerateUIElements();
     }
 
-    private void GenerateUIElements() {
+    private void GenerateUIElements([CanBeNull] Creature.CreatureData creatureData = null) {
         var creatureDataType = typeof(Creature.CreatureData);
         var fields = creatureDataType.GetFields();
         var root = _uiDocument.rootVisualElement;
@@ -45,28 +45,28 @@ public class CreatureEditorUICreator : MonoBehaviour {
             if (field.FieldType == typeof(string)) {
                 var textField = new TextField {
                     name = field.Name,
-                    value = _creatureData == null ? "" : field.GetValue(_creatureData) as string,
+                    value = creatureData == null ? "" : field.GetValue(creatureData) as string,
                     style = { flexGrow = 1 }
                 };
                 fieldContainer.Add(textField);
             } else if (field.FieldType == typeof(int)) {
                 var integerField = new IntegerField {
                     name = field.Name,
-                    value = _creatureData == null ? 1 : (int)field.GetValue(_creatureData),
+                    value = creatureData == null ? 1 : (int)field.GetValue(creatureData),
                     style = { flexGrow = 1 }
                 };
                 fieldContainer.Add(integerField);
             } else if (field.FieldType == typeof(float)) {
                 var floatField = new FloatField {
                     name = field.Name,
-                    value = _creatureData == null ? 1f : (float)field.GetValue(_creatureData),
+                    value = creatureData == null ? 1f : (float)field.GetValue(creatureData),
                     style = { flexGrow = 1 }
                 };
                 fieldContainer.Add(floatField);
             } else if (field.FieldType == typeof(Faction)) {
                 var factionField = new EnumField {
                     name = field.Name,
-                    value = _creatureData == null ? Faction.Enemy : (Faction)field.GetValue(_creatureData),
+                    value = creatureData == null ? Faction.Enemy : (Faction)field.GetValue(creatureData),
                     style = { flexGrow = 1 }
                 };
                 factionField.Init(Faction.Player);
@@ -98,6 +98,14 @@ public class CreatureEditorUICreator : MonoBehaviour {
                 field.SetValue(creatureData, factionField.value);
             }
         }
+
+        // // since the fields in CreatureData are readonly:
+        //
+        // var
+        //
+        // foreach (var fieldInfo in typeof(Creature.CreatureData).GetFields()) {
+        //
+        // }
 
 
         // Save creature data to file

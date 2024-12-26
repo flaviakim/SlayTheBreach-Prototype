@@ -5,6 +5,10 @@ public static class AssetLoader {
 
     public static Sprite LoadSprite(string spritePath) {
         const string spriteBasePath = "Sprites";
+        if (string.IsNullOrEmpty(spritePath)) {
+            Debug.LogError("Sprite path is null or empty.");
+            return null!;
+        }
         var spriteFullPath = Path.Combine(Application.streamingAssetsPath, spriteBasePath, spritePath);
         if (!File.Exists(spriteFullPath)) {
             Debug.LogError($"Sprite file '{spriteFullPath}' does not exist.");
