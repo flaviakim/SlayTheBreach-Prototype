@@ -1,0 +1,11 @@
+{
+  "IDName": "fighter",
+  "CreatureName": "Fighter",
+  "BaseHealth": 10,
+  "Strength": 3,
+  "Defense": 1,
+  "RangedAttack": 1,
+  "Speed": 2,
+  "Faction": "Player",
+  "SpritePath": "fighter.png"
+}

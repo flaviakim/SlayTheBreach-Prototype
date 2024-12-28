@@ -4,6 +4,20 @@ using Newtonsoft.Json;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+public class CreatureFactory : InstanceFactory<Creature, Creature.CreatureData, CreatureFactory> {
+    protected override IPrototypeCollection<Creature.CreatureData> PrototypeCollection { get; } = new JsonPrototypeCollection<Creature.CreatureData>("Prototypes/Creatures");
+
+    public static Creature CreateCreature(string idName, MapTile tile) {
+        var prototype = TryGetPrototypeForName(idName);
+        if (prototype == null) {
+            Debug.LogError($"No prototype found for creature with id {idName}");
+            return null;
+        }
+
+        return new Creature(prototype, tile);
+    }
+}
+
 public class Creature : IInstance<Creature.CreatureData> {
     public event EventHandler<DeathEventArgs> DeathEvent;
 
@@ -24,12 +38,27 @@ public class Creature : IInstance<Creature.CreatureData> {
 
     private readonly GameObject _gameObject;
 
-    public Creature(CreaturePrototype prototype, MapTile tile) {
+    public Creature([NotNull] CreaturePrototype prototype, [NotNull] MapTile tile) {
         PrototypeData = new CreatureData(prototype.Data);
 
         CurrentHealth = BaseHealth;
 
         _gameObject = prototype.CloneGameObject();
+
+        TryMoveTo(tile);
+        Debug.Assert(CurrentTile == tile, "Creature not moved to the correct tile");
+        Debug.Assert(CurrentTile.Occupant == this, "Creature not set as the occupant of the tile");
+    }
+
+    public Creature([NotNull] CreatureData prototypeData, [NotNull] MapTile tile) {
+        PrototypeData = prototypeData;
+
+        CurrentHealth = BaseHealth;
+
+        _gameObject = new GameObject($"Creature: {CreatureName}");
+        var spriteRenderer = _gameObject.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = AssetLoader.LoadSprite(PrototypeData.SpritePath);
+        spriteRenderer.sortingLayerName = "Creature";
 
         TryMoveTo(tile);
         Debug.Assert(CurrentTile == tile, "Creature not moved to the correct tile");

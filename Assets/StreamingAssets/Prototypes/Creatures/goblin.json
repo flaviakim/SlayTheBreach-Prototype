@@ -1,0 +1,11 @@
+{
+  "IDName": "goblin",
+  "CreatureName": "Goblin",
+  "BaseHealth": 5,
+  "Strength": 2,
+  "Defense": 1,
+  "RangedAttack": 0,
+  "Speed": 2,
+  "Faction": "Enemy",
+  "SpritePath": "goblin.png"
+}
