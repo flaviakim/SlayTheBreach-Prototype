@@ -4,29 +4,28 @@ using Newtonsoft.Json;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-public class Creature {
+public class Creature : IInstance<Creature.CreatureData> {
     public event EventHandler<DeathEventArgs> DeathEvent;
 
     public MapTile CurrentTile { get; private set; } = null!;
     public Vector2Int Position => CurrentTile.Position;
 
-    private readonly CreatureData _data;
-    public string IDName => _data.IDName;
-    public string CreatureName => _data.CreatureName;
-    public int BaseHealth => _data.BaseHealth;
-    public int Strength => _data.Strength;
-    public int Defense => _data.Defense;
-    public int RangedAttack => _data.RangedAttack;
-    public int Speed => _data.Speed;
+    public CreatureData PrototypeData { get; }
+    public string CreatureName => PrototypeData.CreatureName;
+    public int BaseHealth => PrototypeData.BaseHealth;
+    public int Strength => PrototypeData.Strength;
+    public int Defense => PrototypeData.Defense;
+    public int RangedAttack => PrototypeData.RangedAttack;
+    public int Speed => PrototypeData.Speed;
 
-    public Faction Faction => _data.Faction;
+    public Faction Faction => PrototypeData.Faction;
     public bool IsPlayerControlled => Faction == Faction.Player;
     public int CurrentHealth { get; private set; }
 
     private readonly GameObject _gameObject;
 
     public Creature(CreaturePrototype prototype, MapTile tile) {
-        _data = new CreatureData(prototype.Data);
+        PrototypeData = new CreatureData(prototype.Data);
 
         CurrentHealth = BaseHealth;
 
