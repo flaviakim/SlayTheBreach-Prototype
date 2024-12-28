@@ -1,0 +1,11 @@
+{
+  "CreatureName": "prototypeTest",
+  "BaseHealth": 2,
+  "Strength": 3,
+  "Defense": 4,
+  "RangedAttack": 5,
+  "Speed": 6,
+  "Faction": 1,
+  "SpritePath": "goblin.png",
+  "IDName": "pTest"
+}

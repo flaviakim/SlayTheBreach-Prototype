@@ -4,20 +4,6 @@ using Newtonsoft.Json;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-public class CreatureFactory : InstanceFactory<Creature, Creature.CreatureData, CreatureFactory> {
-    protected override IPrototypeCollection<Creature.CreatureData> PrototypeCollection { get; } = new JsonPrototypeCollection<Creature.CreatureData>("Prototypes/Creatures");
-
-    public static Creature CreateCreature(string idName, MapTile tile) {
-        var prototype = TryGetPrototypeForName(idName);
-        if (prototype == null) {
-            Debug.LogError($"No prototype found for creature with id {idName}");
-            return null;
-        }
-
-        return new Creature(prototype, tile);
-    }
-}
-
 public class Creature : IInstance<Creature.CreatureData> {
     public event EventHandler<DeathEventArgs> DeathEvent;
 
