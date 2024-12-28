@@ -11,7 +11,7 @@ public class Creature {
     public Vector2Int Position => CurrentTile.Position;
 
     private readonly CreatureData _data;
-    public string CreatureId => _data.CreatureId;
+    public string IDName => _data.IDName;
     public string CreatureName => _data.CreatureName;
     public int BaseHealth => _data.BaseHealth;
     public int Strength => _data.Strength;
@@ -98,8 +98,8 @@ public class Creature {
         Object.Destroy(_gameObject);
     }
 
-    public class CreatureData {
-        public readonly string CreatureId;
+    public class CreatureData : PrototypeData {
+
         public readonly string CreatureName;
         public readonly int BaseHealth;
         public readonly int Strength;
@@ -110,8 +110,7 @@ public class Creature {
         public readonly string SpritePath;
 
         [JsonConstructor]
-        public CreatureData(string creatureId, string creatureName, int baseHealth, int strength, int defense, int rangedAttack, int speed, Faction faction, string spritePath) {
-            CreatureId = creatureId;
+        public CreatureData(string idName, string creatureName, int baseHealth, int strength, int defense, int rangedAttack, int speed, Faction faction, string spritePath) : base(idName) {
             CreatureName = creatureName;
             BaseHealth = baseHealth;
             Strength = strength;
@@ -122,8 +121,7 @@ public class Creature {
             SpritePath = spritePath;
         }
 
-        public CreatureData(CreatureData other) {
-            CreatureId = other.CreatureId;
+        public CreatureData(CreatureData other) : base(other.IDName) {
             CreatureName = other.CreatureName;
             BaseHealth = other.BaseHealth;
             Strength = other.Strength;
@@ -134,8 +132,7 @@ public class Creature {
             SpritePath = other.SpritePath;
         }
 
-        public CreatureData() {
-            CreatureId = "";
+        public CreatureData() : base("") {
             CreatureName = "";
             BaseHealth = 0;
             Strength = 0;

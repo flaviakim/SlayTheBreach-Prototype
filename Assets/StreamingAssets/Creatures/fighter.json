@@ -1,5 +1,5 @@
 {
-  "CreatureId": "fighter",
+  "IDName": "fighter",
   "CreatureName": "Fighter",
   "BaseHealth": 10,
   "Strength": 3,

@@ -18,7 +18,7 @@ public class JsonCreatureLoader : ICreatureLoader {
         var creatureFiles = Directory.GetFiles(creaturesDirectoryPath, "*.json", SearchOption.AllDirectories);
         foreach (var creatureFilePath in creatureFiles) {
             var creature = LoadCreatureFromJson(creatureFilePath, parentTransform);
-            _creatures.Add(creature.CreatureId, creature);
+            _creatures.Add(creature.IDName, creature);
         }
     }
 
@@ -38,19 +38,19 @@ public class JsonCreatureLoader : ICreatureLoader {
             return null!;
         }
         var creature = new CreaturePrototype(creatureData, parentTransform);
-        Debug.Log($"Loaded creature: {creature.CreatureName}");
+        Debug.Log($"Loaded creature: {creature.CreatureName} with ID: {creatureData.IDName} (== {creature.IDName})");
         return creature;
     }
 
     public bool TrySaveCreatureData([NotNull] Creature.CreatureData creatureData, bool overwrite) {
-        if (string.IsNullOrEmpty(creatureData.CreatureId)) {
+        if (string.IsNullOrEmpty(creatureData.IDName)) {
             Debug.LogWarning("Creature ID cannot be null or empty.");
             return false;
         }
         var json = JsonConvert.SerializeObject(creatureData, Formatting.Indented);
-        var creatureFilePath = Path.Combine(Application.streamingAssetsPath, "Creatures", $"{creatureData.CreatureId}.json");
+        var creatureFilePath = Path.Combine(Application.streamingAssetsPath, "Creatures", $"{creatureData.IDName}.json");
         if (File.Exists(creatureFilePath) && !overwrite) {
-            Debug.LogWarning($"Creature with ID {creatureData.CreatureId} already exists.");
+            Debug.LogWarning($"Creature with ID {creatureData.IDName} already exists.");
             return false;
         }
         File.WriteAllText(creatureFilePath, json);

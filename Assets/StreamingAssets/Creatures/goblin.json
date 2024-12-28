@@ -1,5 +1,5 @@
 {
-  "CreatureId": "goblin",
+  "IDName": "goblin",
   "CreatureName": "Goblin",
   "BaseHealth": 5,
   "Strength": 2,

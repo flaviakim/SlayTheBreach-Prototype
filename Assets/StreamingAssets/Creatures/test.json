@@ -1,5 +1,5 @@
 {
-  "CreatureId": "test",
+  "IDName": "test",
   "CreatureName": "Test Creature",
   "BaseHealth": 2,
   "Strength": 2,

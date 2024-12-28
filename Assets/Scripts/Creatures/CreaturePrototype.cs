@@ -4,7 +4,7 @@ using UnityEngine;
 public class CreaturePrototype {
 
     public readonly Creature.CreatureData Data;
-    public string CreatureId => Data.CreatureId;
+    public string IDName => Data.IDName;
     public string CreatureName => Data.CreatureName;
     public int BaseHealth => Data.BaseHealth;
     public int Strength => Data.Strength;
@@ -21,7 +21,7 @@ public class CreaturePrototype {
         Data = new Creature.CreatureData(data);
 
         // TODO this could be created by a factory class.
-        _prototypeGameObject = new GameObject($"PrototypeCreature: {CreatureId} ({CreatureName})");
+        _prototypeGameObject = new GameObject($"PrototypeCreature: {IDName} ({CreatureName})");
         var spriteRenderer = _prototypeGameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = AssetLoader.LoadSprite(SpritePath);
         spriteRenderer.sortingLayerName = "Creature";
@@ -38,7 +38,7 @@ public class CreaturePrototype {
 
     public GameObject CloneGameObject() {
         var clonedGameObject = Object.Instantiate(_prototypeGameObject, _prototypeGameObject.transform.parent, true);
-        clonedGameObject.name = $"{CreatureName} ({CreatureId})";
+        clonedGameObject.name = $"{CreatureName} ({IDName})";
         clonedGameObject.SetActive(true);
         return clonedGameObject;
     }
