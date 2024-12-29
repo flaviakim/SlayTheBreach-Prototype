@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class CreatureEditorUICreator : MonoBehaviour {
 
     private UIDocument _uiDocument;
-    private readonly JsonPrototypeCollection<Creature.CreatureData> _jsonCreatureCollection = new("Prototypes/Creatures");
+    private readonly CreaturePrototypeCollection _jsonCreaturePrototypeCollection = new();
 
     private void Awake() {
         if (!TryGetComponent(out _uiDocument)) {
@@ -99,17 +99,8 @@ public class CreatureEditorUICreator : MonoBehaviour {
             }
         }
 
-        // // since the fields in CreatureData are readonly:
-        //
-        // var
-        //
-        // foreach (var fieldInfo in typeof(Creature.CreatureData).GetFields()) {
-        //
-        // }
-
-
         // Save creature data to file
-        var saved = _jsonCreatureCollection.TrySavePrototypeData(creatureData, overwrite: false);
+        var saved = _jsonCreaturePrototypeCollection.TrySavePrototypeData(creatureData, overwrite: false);
         // TODO confirmation dialog
     }
 }

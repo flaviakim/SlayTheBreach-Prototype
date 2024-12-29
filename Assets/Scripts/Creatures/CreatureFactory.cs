@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class CreatureFactory : InstanceFactory<Creature, Creature.CreatureData, CreatureFactory> {
-    protected override IPrototypeCollection<Creature.CreatureData> PrototypeCollection { get; } = new JsonPrototypeCollection<Creature.CreatureData>("Prototypes/Creatures");
+    protected override IPrototypeCollection<Creature.CreatureData> PrototypeCollection { get; } = new CreaturePrototypeCollection();
 
     public static Creature CreateCreature(string idName, MapTile tile) {
         var prototype = TryGetPrototypeForName(idName);
