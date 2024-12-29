@@ -5,7 +5,7 @@ using UnityEngine;
 public class CreaturesManager : MonoBehaviour {
     public event EventHandler<DeathEventArgs> OnCreatureDeathEvent = null!;
 
-    private readonly ICreatureLoader _creatureLoader = new JsonCreatureLoader();
+    // private readonly CreatureFactory _creatureFactory = new CreatureFactory();
     public List<Creature> CreaturesInBattle { get; } = new();
 
     private static CreaturesManager Instance { get; set; } = null!;
@@ -15,14 +15,13 @@ public class CreaturesManager : MonoBehaviour {
             Destroy(gameObject);
             throw new System.Exception("CreaturesManager already initialized");
         }
-        _creatureLoader.LoadAllCreaturePrototypes(parentTransform: transform);
+        CreatureFactory.PreloadPrototypes();
 
         Instance = this;
     }
 
     public Creature SpawnCreature(string creatureID, MapTile tile) {
-        var creaturePrototype = _creatureLoader.GetCreaturePrototypeById(creatureID);
-        var creature = creaturePrototype.CreateInstance(tile);
+        var creature = CreatureFactory.CreateCreature(creatureID, tile, transform);
         CreaturesInBattle.Add(creature);
         creature.DeathEvent += (sender, e) => {
             CreaturesInBattle.Remove(e.DeadCreature);

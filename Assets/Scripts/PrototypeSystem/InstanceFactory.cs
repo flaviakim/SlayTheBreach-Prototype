@@ -26,4 +26,9 @@ public abstract class InstanceFactory<TInstance, TPrototypeData, TFactory>
     public static List<string> GetPrototypeNames() {
         return Singleton.PrototypeCollection.GetPrototypeNames();
     }
+
+    public static void PreloadPrototypes() {
+        Singleton.PrototypeCollection.PreloadPrototypes();
+    }
+
 }

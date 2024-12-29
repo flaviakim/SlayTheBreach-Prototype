@@ -24,24 +24,13 @@ public class Creature : IInstance<Creature.CreatureData> {
 
     private readonly GameObject _gameObject;
 
-    public Creature([NotNull] CreaturePrototype prototype, [NotNull] MapTile tile) {
-        PrototypeData = new CreatureData(prototype.Data);
-
-        CurrentHealth = BaseHealth;
-
-        _gameObject = prototype.CloneGameObject();
-
-        TryMoveTo(tile);
-        Debug.Assert(CurrentTile == tile, "Creature not moved to the correct tile");
-        Debug.Assert(CurrentTile.Occupant == this, "Creature not set as the occupant of the tile");
-    }
-
-    public Creature([NotNull] CreatureData prototypeData, [NotNull] MapTile tile) {
+    public Creature([NotNull] CreatureData prototypeData, [NotNull] MapTile tile, Transform transform) {
         PrototypeData = prototypeData;
 
         CurrentHealth = BaseHealth;
 
         _gameObject = new GameObject($"Creature: {CreatureName}");
+        _gameObject.transform.parent = transform;
         var spriteRenderer = _gameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = AssetLoader.LoadSprite(PrototypeData.SpritePath);
         spriteRenderer.sortingLayerName = "Creature";

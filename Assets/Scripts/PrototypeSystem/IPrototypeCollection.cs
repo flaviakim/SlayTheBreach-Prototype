@@ -5,17 +5,12 @@ public interface IPrototypeCollection<TPrototypeData> where TPrototypeData : Pro
     [CanBeNull] public TPrototypeData TryGetPrototypeForName(string idName);
     public List<string> GetPrototypeNames();
     public List<TPrototypeData> GetPrototypes();
+    public void PreloadPrototypes();
 }
 
 public abstract class DictionaryPrototypeCollection<TPrototypeData> : IPrototypeCollection<TPrototypeData> where TPrototypeData : PrototypeData {
     private Dictionary<string, TPrototypeData> _prototypes;
-    private Dictionary<string, TPrototypeData> Prototypes {
-        get {
-            if (_prototypes != null) return _prototypes;
-            _prototypes = LoadPrototypeDatas();
-            return _prototypes;
-        }
-    }
+    private Dictionary<string, TPrototypeData> Prototypes => _prototypes ??= LoadPrototypeDatas();
 
     public TPrototypeData TryGetPrototypeForName(string name) {
         Prototypes.TryGetValue(name, out var prototype);
@@ -28,6 +23,10 @@ public abstract class DictionaryPrototypeCollection<TPrototypeData> : IPrototype
 
     public List<TPrototypeData> GetPrototypes() {
         return new List<TPrototypeData>(Prototypes.Values);
+    }
+
+    public void PreloadPrototypes() {
+        _prototypes ??= LoadPrototypeDatas();
     }
 
     protected abstract Dictionary<string, TPrototypeData> LoadPrototypeDatas();
