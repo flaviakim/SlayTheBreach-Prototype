@@ -1,7 +1,9 @@
-public abstract class PrototypeData {
-    public readonly string IDName;
+namespace PrototypeSystem {
+    public abstract class PrototypeData {
+        public readonly string IDName;
 
-    public PrototypeData(string idName) {
-        IDName = idName;
+        protected PrototypeData(string idName) {
+            IDName = idName;
+        }
     }
 }

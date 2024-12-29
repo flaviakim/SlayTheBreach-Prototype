@@ -1,6 +1,7 @@
 using System;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using PrototypeSystem;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

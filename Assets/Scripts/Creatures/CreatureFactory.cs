@@ -1,3 +1,4 @@
+using PrototypeSystem;
 using UnityEngine;
 
 public class CreatureFactory : InstanceFactory<Creature, Creature.CreatureData, CreatureFactory> {
