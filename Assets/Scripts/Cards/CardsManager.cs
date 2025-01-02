@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CardsManager : MonoBehaviour {
-    private readonly List<Card> _allCards = new();
     public PlayerDeck PlayerDeck { get; private set; } = null!;
 
     private static CardsManager Instance { get; set; } = null!;
 
-    private readonly ICardLoader _cardLoader = new JsonCardLoader();
+    private readonly CardFactory _cardFactory = new();
 
     private void Awake() {
         if (Instance != null) {
@@ -18,19 +17,19 @@ public class CardsManager : MonoBehaviour {
 
         Instance = this;
 
-        LoadCards();
+        _cardFactory.PreloadPrototypes();
 
         PlayerDeck = new PlayerDeck();
-        foreach (var card in _allCards) {
-            for (int i = 0; i < 5; i++) {
-                PlayerDeck.AddCard(card);
+
+        var prototypeNames = _cardFactory.GetPrototypeNames();
+
+        foreach (var card in prototypeNames) {
+            for (int i = 0; i < 3; i++) {
+                PlayerDeck.AddCard(_cardFactory.CreateCardInstance(card));
             }
         }
     }
 
-    private void LoadCards() {
-        _allCards.AddRange(_cardLoader.LoadAllCards());
-    }
 }
 
 

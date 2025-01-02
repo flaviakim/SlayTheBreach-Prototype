@@ -10,18 +10,20 @@ public class CreaturesManager : MonoBehaviour {
 
     private static CreaturesManager Instance { get; set; } = null!;
 
+    private CreatureFactory _creatureFactory = new CreatureFactory();
+
     private void Awake() {
         if (Instance != null) {
             Destroy(gameObject);
             throw new System.Exception("CreaturesManager already initialized");
         }
-        CreatureFactory.PreloadPrototypes();
+        _creatureFactory.PreloadPrototypes();
 
         Instance = this;
     }
 
     public Creature SpawnCreature(string creatureID, MapTile tile) {
-        var creature = CreatureFactory.CreateCreature(creatureID, tile, transform);
+        var creature = _creatureFactory.CreateCreature(creatureID, tile, transform);
         CreaturesInBattle.Add(creature);
         creature.DeathEvent += (sender, e) => {
             CreaturesInBattle.Remove(e.DeadCreature);

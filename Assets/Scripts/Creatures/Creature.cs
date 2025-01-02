@@ -5,13 +5,14 @@ using PrototypeSystem;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-public class Creature : IInstance<Creature.CreatureData> {
+public class Creature : IInstance {
     public event EventHandler<DeathEventArgs> DeathEvent;
 
     public MapTile CurrentTile { get; private set; } = null!;
     public Vector2Int Position => CurrentTile.Position;
 
-    public CreatureData PrototypeData { get; }
+    protected CreatureData PrototypeData { get; }
+    public string IDName => PrototypeData.IDName;
     public string CreatureName => PrototypeData.CreatureName;
     public int BaseHealth => PrototypeData.BaseHealth;
     public int Strength => PrototypeData.Strength;

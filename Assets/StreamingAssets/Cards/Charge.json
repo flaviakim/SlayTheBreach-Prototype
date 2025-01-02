@@ -1,4 +1,5 @@
 {
+  "IDName": "Charge",
   "CardName": "Charge",
   "Description": "Move 3 tiles and deal 3 damage",
   "Effects": [

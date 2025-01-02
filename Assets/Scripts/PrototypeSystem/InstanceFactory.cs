@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace PrototypeSystem {
     public abstract class InstanceFactory<TInstance, TPrototypeData, TFactory>
-        where TInstance : IInstance<TPrototypeData>
+        where TInstance : IInstance
         where TPrototypeData : PrototypeData
         where TFactory : InstanceFactory<TInstance, TPrototypeData, TFactory>, new() {
 
@@ -13,23 +13,21 @@ namespace PrototypeSystem {
 
         protected abstract IPrototypeCollection<TPrototypeData> PrototypeCollection { get; }
 
-        private static TFactory Singleton { get; } = new();
-
         [CanBeNull]
-        protected static TPrototypeData TryGetPrototypeForName(string idName) {
-            return Singleton.PrototypeCollection.TryGetPrototypeForName(idName);
+        protected TPrototypeData TryGetPrototypeForName(string idName) {
+            return PrototypeCollection.TryGetPrototypeForName(idName);
         }
 
-        public static List<TPrototypeData> GetPrototypes() {
-            return Singleton.PrototypeCollection.GetPrototypes();
+        public List<TPrototypeData> GetPrototypes() {
+            return PrototypeCollection.GetPrototypes();
         }
 
-        public static List<string> GetPrototypeNames() {
-            return Singleton.PrototypeCollection.GetPrototypeNames();
+        public List<string> GetPrototypeNames() {
+            return PrototypeCollection.GetPrototypeNames();
         }
 
-        public static void PreloadPrototypes() {
-            Singleton.PrototypeCollection.PreloadPrototypes();
+        public void PreloadPrototypes() {
+            PrototypeCollection.PreloadPrototypes();
         }
 
     }

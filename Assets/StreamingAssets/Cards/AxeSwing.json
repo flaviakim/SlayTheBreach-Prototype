@@ -1,4 +1,5 @@
 {
+  "IDName": "AxeSwing",
   "CardName": "Axe Swing",
   "Description": "Deal 3 damage to all adjacent creatures",
   "Effects": [
