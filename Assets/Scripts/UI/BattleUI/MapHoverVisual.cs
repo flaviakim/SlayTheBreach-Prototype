@@ -31,8 +31,6 @@ public class MapHoverVisual : MonoBehaviour {
             stringBuilder.AppendLine($"{occupant.CreatureName}");
             stringBuilder.AppendLine($"HP: {occupant.CurrentHealth}/{occupant.BaseHealth}");
             stringBuilder.AppendLine($"Strength: {occupant.Strength}");
-            stringBuilder.AppendLine($"Defense: {occupant.Defense}");
-            stringBuilder.AppendLine($"Ranged Attack: {occupant.RangedAttack}");
             stringBuilder.AppendLine($"Speed: {occupant.Speed}");
             stringBuilder.AppendLine($"Faction: {occupant.Faction}");
         }

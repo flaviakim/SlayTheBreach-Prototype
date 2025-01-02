@@ -16,8 +16,6 @@ public class Creature : IInstance {
     public string CreatureName => PrototypeData.CreatureName;
     public int BaseHealth => PrototypeData.BaseHealth;
     public int Strength => PrototypeData.Strength;
-    public int Defense => PrototypeData.Defense;
-    public int RangedAttack => PrototypeData.RangedAttack;
     public int Speed => PrototypeData.Speed;
 
     public Faction Faction => PrototypeData.Faction;
@@ -31,7 +29,7 @@ public class Creature : IInstance {
 
         CurrentHealth = BaseHealth;
 
-        _gameObject = new GameObject($"Creature: {CreatureName}");
+        _gameObject = new GameObject($"Creature: {IDName}");
         _gameObject.transform.parent = transform;
         var spriteRenderer = _gameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = AssetLoader.LoadSprite(PrototypeData.SpritePath);
@@ -89,18 +87,22 @@ public class Creature : IInstance {
         }
 
         CurrentHealth -= damage;
-        Debug.Log($"{CreatureName} takes {damage} damage, now has {CurrentHealth} health");
+        Debug.Log($"{this} took {damage} damage. Remaining health: {CurrentHealth}");
         if (CurrentHealth <= 0) {
             Die();
         }
     }
 
     private void Die() {
-        Debug.Log($"{CreatureName} dies");
+        Debug.Log($"{this} dies");
         DeathEvent?.Invoke(this, new DeathEventArgs(this));
         CurrentTile.Occupant = null;
         CurrentTile = null;
         Object.Destroy(_gameObject);
+    }
+
+    public override string ToString() {
+        return $"{IDName} ({CurrentHealth}/{BaseHealth})";
     }
 
     public class CreatureData : PrototypeData {
