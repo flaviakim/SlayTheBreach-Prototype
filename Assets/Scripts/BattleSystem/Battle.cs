@@ -1,55 +1,59 @@
 using System;
 using JetBrains.Annotations;
+using PrototypeSystem;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
-public class Battle : MonoBehaviour {
+public class Battle : IInstance {
+
+    public string IDName { get; }
 
     public event EventHandler OnPlayerHasPlayedCard;
 
-    [SerializeField] private int startHandSize = 5;
+    private readonly int _startHandSize;
 
     public static Battle CurrentBattle { get; private set; } = null!;
 
-    public BattleMap BattleMap { get; private set; } = null!;
-    public CardsManager CardsManager { get; private set; } = null!;
-    public CardEffectHandler CardEffectHandler { get; private set; } = null!;
-    public CreaturesManager CreaturesManager { get; private set; } = null!;
-    public EnemyManager EnemyManager { get; private set; } = null!;
+    public BattleMap BattleMap { get; private set; }
+    public CardsManager CardsManager { get; private set; }
+    public CardEffectHandler CardEffectHandler { get; private set; }
+    public CreaturesManager CreaturesManager { get; private set; }
+    public EnemyManager EnemyManager { get; private set; }
 
     public Faction CurrentTurn { get; private set; } = Faction.Player;
 
+
     // public static void StartBattle(CardsManager cardsManager, BattleMap battleMap) {
+
     //     CurrentBattle = new GameObject("CurrentBattle").AddComponent<Battle>();
+
     //     cardsManager.PlayerDeck.StartNewGame(START_HAND_SIZE);
+
     // }
 
 
-    private void Awake() {
-        // TODO this is for debugging purposes, start the battle differently
-
-        if (CurrentBattle != null) {
+    public Battle(string idName, int startHandSize) {
+        if (CurrentBattle != null) { // TODO this should be removed, but it is useful for debugging
             Debug.LogWarning("CurrentBattle already initialized, not yet removed.");
         }
+        CurrentBattle = this;
+        IDName = idName;
+        _startHandSize = startHandSize;
 
-        CardsManager = FindFirstObjectByType<CardsManager>();
-        BattleMap = FindFirstObjectByType<BattleMap>();
+        CardsManager = Object.FindFirstObjectByType<CardsManager>(); // TODO change to new CardsManager()
+        BattleMap = Object.FindFirstObjectByType<BattleMap>(); // TODO change to new BattleMap()
         CardEffectHandler = new CardEffectHandler(this);
-        CreaturesManager = FindFirstObjectByType<CreaturesManager>();
+        CreaturesManager = Object.FindFirstObjectByType<CreaturesManager>(); // TODO change to new CreaturesManager()
         EnemyManager = new EnemyManager(this);
 
 
-        CurrentBattle = this;
-    }
-
-    private void Start() {
         CardEffectHandler.OnCardFinished += OnCardFinishedPlaying;
-        CardsManager.PlayerDeck.InitializeNewGame(startHandSize);
+        CardsManager.PlayerDeck.InitializeNewGame(_startHandSize);
         CurrentTurn = Faction.Player;
-
         EnemyManager.OnBattleStart();
     }
 
-    private void Update() {
+    public void Update() {
         if (CurrentTurn == Faction.Enemy) {
             EnemyManager.UpdateEnemies();
         } else if (CurrentTurn == Faction.Player) {
@@ -75,7 +79,7 @@ public class Battle : MonoBehaviour {
 
         CurrentTurn = Faction.Player;
         EnemyManager.ChooseEnemyMoves();
-        CardsManager.PlayerDeck.DrawCards(startHandSize);
+        CardsManager.PlayerDeck.DrawCards(_startHandSize);
     }
 
     private void OnCardFinishedPlaying(object sender, CardEventArgs e) {
@@ -103,8 +107,21 @@ public class Battle : MonoBehaviour {
         return true;
     }
 
-    private void OnGUI() {
+    public void OnGUI() {
         GUI.Label(new Rect(10, 10, 100, 20), $"Current turn: {CurrentTurn}");
         CardEffectHandler.OnGUI();
     }
+}
+
+public class BattleData : PrototypeData {
+    public string[] EnemyCreatureIdsToSpawn;
+    public string[] PlayerCreatureIdsToSpawn;
+    public int StartHandSize;
+
+    public BattleData(string idName, int startHandSize, string[] playerCreatureIdsToSpawn, string[] enemyCreatureIdsToSpawn) : base(idName) {
+        StartHandSize = startHandSize;
+        PlayerCreatureIdsToSpawn = playerCreatureIdsToSpawn;
+        EnemyCreatureIdsToSpawn = enemyCreatureIdsToSpawn;
+    }
+
 }

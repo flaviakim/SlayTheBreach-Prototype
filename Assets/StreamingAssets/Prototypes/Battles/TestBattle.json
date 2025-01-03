@@ -1,0 +1,14 @@
+{
+  "IDName": "TestBattle",
+  "EnemyCreatureIdsToSpawn": [
+    "goblin",
+    "goblin",
+    "test"
+  ],
+  "PlayerCreatureIdsToSpawn": [
+    "fighter",
+    "fighter",
+    "fighter"
+  ],
+  "StartHandSize": 5
+}
