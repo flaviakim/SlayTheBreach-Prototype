@@ -9,8 +9,6 @@ namespace PrototypeSystem {
 
         private readonly string _directoryPath;
 
-        private string CompleteDirectoryPath => Path.Combine(Application.streamingAssetsPath, _directoryPath);
-
         protected JsonPrototypeCollection(string directoryPath) {
             _directoryPath = directoryPath;
         }
@@ -19,21 +17,14 @@ namespace PrototypeSystem {
             Debug.Log($"Loading prototypes from {_directoryPath}");
             var loadedPrototypes = new Dictionary<string, TPrototypeData>();
 
-            var completeDirectoryPath = CompleteDirectoryPath;
-            if (!Directory.Exists(completeDirectoryPath)) {
-                Debug.LogError($"Directory '{completeDirectoryPath}' does not exist.");
-                return loadedPrototypes;
-            }
-
-            var filesNames = Directory.GetFiles(completeDirectoryPath, "*.json", SearchOption.AllDirectories);
-            foreach (var fileName in filesNames) {
-                var prototypeData = JsonConvert.DeserializeObject<TPrototypeData>(File.ReadAllText(fileName));
+            var prototypeDatas = AssetLoader.LoadAllJson<TPrototypeData>(_directoryPath);
+            foreach (var prototypeData in prototypeDatas) {
                 if (prototypeData == null) {
-                    Debug.LogError($"Failed to load prototypeData from {fileName}");
+                    Debug.LogError("Failed to load prototypeData");
                     continue;
                 }
                 if (prototypeData.IDName is null or "") {
-                    Debug.LogError($"PrototypeData {fileName} has no IdName");
+                    Debug.LogError("PrototypeData has no IdName");
                     continue;
                 }
                 if (!loadedPrototypes.TryAdd(prototypeData.IDName, prototypeData)) {
@@ -50,14 +41,11 @@ namespace PrototypeSystem {
                 Debug.LogWarning("Prototype ID cannot be null or empty.");
                 return false;
             }
-            var json = JsonConvert.SerializeObject(prototypeData, Formatting.Indented);
-            var prototypeDataFilePath = Path.Combine(CompleteDirectoryPath, $"{prototypeData.IDName}.json");
-            if (File.Exists(prototypeDataFilePath) && !overwrite) {
-                Debug.LogWarning($"PrototypeData file with ID {prototypeData.IDName} already exists.");
+            if (!AssetSaver.TrySaveJson(prototypeData, Path.Combine(_directoryPath, prototypeData.IDName + ".json"), overwrite)) {
+                Debug.LogError($"Failed to save prototype {prototypeData.IDName}");
                 return false;
             }
-            File.WriteAllText(prototypeDataFilePath, json);
-            Debug.Log($"Saved data to {prototypeDataFilePath}");
+            Debug.Log($"Saved prototype {prototypeData.IDName}");
             return true;
         }
 
