@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardsManager {
+public class CardsManager : IBattleManager {
     public PlayerDeck PlayerDeck { get; private set; }
 
     private readonly CardFactory _cardFactory = new();
@@ -22,6 +22,5 @@ public class CardsManager {
         }
     }
 
+    public void Initialize(Battle battle) { }
 }
-
-

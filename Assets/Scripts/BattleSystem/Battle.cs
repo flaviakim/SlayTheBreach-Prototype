@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 public class Battle : IInstance {
     public event EventHandler OnPlayerHasPlayedCard;
     public event EventHandler OnBattleWon;
-    public event EventHandler OnBattleEnded;
+    public event EventHandler BattleEndedEvent;
 
     public string IDName { get; }
 
@@ -50,6 +50,11 @@ public class Battle : IInstance {
 
     public void Initialize() {
         BattleMap.Initialize(this);
+        CreaturesManager.Initialize(this);
+        CardsManager.Initialize(this);
+        CardEffectHandler.Initialize(this);
+        EnemyManager.Initialize(this);
+
         CardEffectHandler.OnCardFinished += OnCardFinishedPlaying;
         CardsManager.PlayerDeck.InitializeNewGame(_startHandSize);
         CurrentTurn = Faction.Player;
@@ -94,7 +99,7 @@ public class Battle : IInstance {
             Debug.Log($"Win condition met: {winCondition.Name}");
         }
         OnBattleWon?.Invoke(this, EventArgs.Empty);
-        OnBattleEnded?.Invoke(this, EventArgs.Empty);
+        BattleEndedEvent?.Invoke(this, EventArgs.Empty);
         CurrentBattle = null!;
     }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
-public class CardEffectHandler {
+public class CardEffectHandler : IBattleManager {
     public event EventHandler<EffectEventArgs> OnEffectStarted;
     public event EventHandler<EffectEventArgs> OnEffectFinished;
     public event EventHandler<CardEventArgs> OnCardStarted;
@@ -24,11 +24,14 @@ public class CardEffectHandler {
     public readonly Queue<ICardEffect> EffectQueue = new();
     [CanBeNull] private ICardEffect CurrentEffect { get; set; } = null!;
 
+    public void Initialize(Battle battle) { }
+
     public void UpdateEffect() {
         if (Battle.CurrentTurn != Faction.Player) {
             Debug.LogError("Trying to update card effect handler, but it is not player's turn");
             return;
         }
+
         if (!IsPlayingEffect) return;
 
         if (CheckEffectManuallyEnded()) return;

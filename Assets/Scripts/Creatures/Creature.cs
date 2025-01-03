@@ -96,6 +96,10 @@ public class Creature : IInstance {
     private void Die() {
         Debug.Log($"{this} dies");
         DeathEvent?.Invoke(this, new DeathEventArgs(this));
+        Destroy();
+    }
+
+    public void Destroy() {
         CurrentTile.Occupant = null;
         CurrentTile = null;
         Object.Destroy(_gameObject);

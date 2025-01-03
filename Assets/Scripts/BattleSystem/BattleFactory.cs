@@ -22,11 +22,11 @@ public class BattleFactory : InstanceFactory<Battle, BattleData, BattleFactory> 
         }
 
         var battle = new Battle(battleId, battleData.StartHandSize, battleMap, winConditions);
+        battle.Initialize();
 
         SpawnEnemies(battle, battleMap, battleData.EnemyCreatureIdsToSpawn);
         SpawnPlayerCreatures(battle, battleMap, battleData.PlayerCreatureIdsToSpawn);
 
-        battle.Initialize();
 
         return battle;
     }

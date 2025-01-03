@@ -26,7 +26,7 @@ public class MapTile : IInstance {
     }
 
     public void Initialize(Battle battle) {
-        battle.OnBattleEnded += OnBattleEnded;
+        battle.BattleEndedEvent += OnBattleEnded;
     }
 
     private void OnBattleEnded(object sender, EventArgs e) {

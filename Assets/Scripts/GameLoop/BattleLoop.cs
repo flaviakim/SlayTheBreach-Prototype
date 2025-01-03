@@ -19,12 +19,12 @@ namespace GameLoop {
                 return;
             }
 
-            _battle.OnBattleEnded += OnBattleEnded;
+            _battle.BattleEndedEvent += OnBattleEnded;
         }
 
         private void OnBattleEnded(object sender, EventArgs e) {
             Debug.Log("Battle ended");
-            _battle.OnBattleEnded -= OnBattleEnded;
+            _battle.BattleEndedEvent -= OnBattleEnded;
             _battle = null;
         }
 
