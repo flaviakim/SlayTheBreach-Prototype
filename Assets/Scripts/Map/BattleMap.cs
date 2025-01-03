@@ -7,7 +7,6 @@ using PrototypeSystem;
 using UnityEngine;
 
 public class BattleMap : IInstance {
-
     public string IDName { get; }
 
     public int Width { get; }
@@ -15,7 +14,6 @@ public class BattleMap : IInstance {
     public int Height { get; }
 
     private MapTile[,] _tiles;
-
 
 
     public BattleMap([NotNull] BattleMapData battleMapData, MapTileFactory mapTileFactory) {
@@ -37,7 +35,6 @@ public class BattleMap : IInstance {
                 }
             }
         }
-
     }
 
     public bool TryGetTile(Vector2 position, out MapTile tile) {
@@ -84,6 +81,7 @@ public class BattleMap : IInstance {
                 if (!includeFromTile && tile == fromTile) {
                     continue;
                 }
+
                 if (GetDistanceBetweenTiles(fromTile, tile) <= distance && (predicate == null || predicate(tile))) {
                     result.Add(tile);
                 }
@@ -111,6 +109,12 @@ public class BattleMap : IInstance {
         return new List<MapTile> { actualEndTile };
     }
 
+
+    public void Initialize(Battle battle) {
+        foreach (var tile in _tiles) {
+            tile.Initialize(battle);
+        }
+    }
 
     public class BattleMapData : PrototypeData {
         public int Width { get; }

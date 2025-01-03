@@ -1,18 +1,20 @@
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using PrototypeSystem;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 public class Battle : IInstance {
+    public event EventHandler OnPlayerHasPlayedCard;
+    public event EventHandler OnBattleWon;
+    public event EventHandler OnBattleEnded;
 
     public string IDName { get; }
 
-    public event EventHandler OnPlayerHasPlayedCard;
 
-    private readonly int _startHandSize;
-
-    public static Battle CurrentBattle { get; private set; } = null!;
+    // Not sure if a Singleton is the best way to handle this
+    [CanBeNull] public static Battle CurrentBattle { get; private set; } = null!;
 
     public BattleMap BattleMap { get; private set; }
     public CardsManager CardsManager { get; private set; }
@@ -20,22 +22,18 @@ public class Battle : IInstance {
     public CreaturesManager CreaturesManager { get; private set; }
     public EnemyManager EnemyManager { get; private set; }
 
-    public Faction CurrentTurn { get; private set; } = Faction.Player;
+    public Faction CurrentTurn { get; private set; }
+
+    public IWinCondition[] WinConditions { get; }
+
+    private readonly int _startHandSize;
 
 
-    // public static void StartBattle(CardsManager cardsManager, BattleMap battleMap) {
-
-    //     CurrentBattle = new GameObject("CurrentBattle").AddComponent<Battle>();
-
-    //     cardsManager.PlayerDeck.StartNewGame(START_HAND_SIZE);
-
-    // }
-
-
-    public Battle(string idName, int startHandSize, BattleMap battleMap) {
-        if (CurrentBattle != null) { // TODO this should be removed, but it is useful for debugging
+    public Battle(string idName, int startHandSize, BattleMap battleMap, [NotNull] IWinCondition[] winConditions) {
+        if (CurrentBattle != null) {
             Debug.LogWarning("CurrentBattle already initialized, not yet removed.");
         }
+
         CurrentBattle = this;
         IDName = idName;
         _startHandSize = startHandSize;
@@ -46,7 +44,12 @@ public class Battle : IInstance {
         CreaturesManager = new CreaturesManager();
         EnemyManager = new EnemyManager(this);
 
+        Debug.Assert(winConditions.Length > 0, "Win conditions are empty");
+        WinConditions = winConditions;
+    }
 
+    public void Initialize() {
+        BattleMap.Initialize(this);
         CardEffectHandler.OnCardFinished += OnCardFinishedPlaying;
         CardsManager.PlayerDeck.InitializeNewGame(_startHandSize);
         CurrentTurn = Faction.Player;
@@ -56,7 +59,8 @@ public class Battle : IInstance {
     public void Update() {
         if (CurrentTurn == Faction.Enemy) {
             EnemyManager.UpdateEnemies();
-        } else if (CurrentTurn == Faction.Player) {
+        }
+        else if (CurrentTurn == Faction.Player) {
             CardEffectHandler.UpdateEffect();
         }
     }
@@ -67,8 +71,44 @@ public class Battle : IInstance {
             return;
         }
 
+        if (CheckForWin()) return;
+
         CurrentTurn = Faction.Enemy;
         EnemyManager.StartEnemyTurn();
+    }
+
+    private bool CheckForWin() {
+        var isBattleWon = IsAnyWinConditionMet(out var winConditionsMet);
+        if (isBattleWon) {
+            HandleBattleWon(winConditionsMet);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void HandleBattleWon(IWinCondition[] winConditionsMet) {
+        Debug.Log("Battle won");
+        Debug.Assert(winConditionsMet.Length > 0, "Win conditions met, but none found");
+        foreach (var winCondition in winConditionsMet) {
+            Debug.Log($"Win condition met: {winCondition.Name}");
+        }
+        OnBattleWon?.Invoke(this, EventArgs.Empty);
+        OnBattleEnded?.Invoke(this, EventArgs.Empty);
+        CurrentBattle = null!;
+    }
+
+    private bool IsAnyWinConditionMet(out IWinCondition[] winConditionsMet) {
+        var winConditionsMetList = new List<IWinCondition>();
+        foreach (var winCondition in WinConditions) {
+            if (winCondition.IsWinConditionMet(this)) {
+                Debug.Log($"Win condition {winCondition.Name} met");
+                winConditionsMetList.Add(winCondition);
+            }
+        }
+
+        winConditionsMet = winConditionsMetList.ToArray();
+        return winConditionsMet.Length > 0;
     }
 
     public void EndEnemyTurn() {
@@ -84,11 +124,13 @@ public class Battle : IInstance {
 
     private void OnCardFinishedPlaying(object sender, CardEventArgs e) {
         // TODO this should eventually be called by the player, not automatically
+        if (CheckForWin())
+            return;
+
         if (CardsManager.PlayerDeck.HandCards.Count == 0) {
             EndPlayerTurn();
         }
     }
-
 
     public bool PlayCard(int cardIndex, [NotNull] Creature creature) {
         if (CurrentTurn != Faction.Player) {
@@ -118,11 +160,15 @@ public class BattleData : PrototypeData {
     public readonly string[] PlayerCreatureIdsToSpawn;
     public readonly int StartHandSize;
     public readonly string BattleMapIDName;
+    public readonly string[] WinConditionIds;
 
-    public BattleData(string idName, int startHandSize, string[] playerCreatureIdsToSpawn, string[] enemyCreatureIdsToSpawn, string battleMapIDName) : base(idName) {
+
+    public BattleData(string idName, int startHandSize, string[] playerCreatureIdsToSpawn, string[] enemyCreatureIdsToSpawn, string battleMapIDName, string[] winConditionIds) :
+        base(idName) {
         StartHandSize = startHandSize;
         PlayerCreatureIdsToSpawn = playerCreatureIdsToSpawn;
         EnemyCreatureIdsToSpawn = enemyCreatureIdsToSpawn;
         BattleMapIDName = battleMapIDName;
+        WinConditionIds = winConditionIds;
     }
 }

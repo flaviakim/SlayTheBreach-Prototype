@@ -11,5 +11,8 @@
     "fighter",
     "fighter"
   ],
-  "StartHandSize": 5
+  "StartHandSize": 5,
+  "WinConditionIds": [
+    "KillAllEnemies"
+  ]
 }

@@ -14,14 +14,26 @@ namespace GameLoop {
 
         public void StartBattle(string battleId) {
             _battle = _battleFactory.CreateBattleInstance(battleId);
+            if (_battle == null) {
+                Debug.LogError($"Failed to start battle with id {battleId}");
+                return;
+            }
+
+            _battle.OnBattleEnded += OnBattleEnded;
+        }
+
+        private void OnBattleEnded(object sender, EventArgs e) {
+            Debug.Log("Battle ended");
+            _battle.OnBattleEnded -= OnBattleEnded;
+            _battle = null;
         }
 
         private void Update() {
-            _battle.Update();
+            _battle?.Update();
         }
 
         private void OnGUI() {
-            _battle.OnGUI();
+            _battle?.OnGUI();
         }
     }
 }

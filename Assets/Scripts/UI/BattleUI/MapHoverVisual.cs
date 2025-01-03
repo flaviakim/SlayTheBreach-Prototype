@@ -41,6 +41,9 @@ public class MapHoverVisual : MonoBehaviour {
         if (_currentText == "") {
             return;
         }
+        if (Battle.CurrentBattle == null) {
+            return;
+        }
 
         var tileSizeInPixels = Screen.height / Battle.CurrentBattle.BattleMap.Height;
         var rect = new Rect(Input.mousePosition.x + 10, Screen.height - Input.mousePosition.y, tileSizeInPixels, tileSizeInPixels);

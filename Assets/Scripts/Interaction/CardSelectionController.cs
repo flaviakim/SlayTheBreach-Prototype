@@ -5,6 +5,9 @@ public class CardSelectionController : MonoBehaviour {
     private int? _selectedCardIndex = null;
 
     private void Update() {
+        if (Battle.CurrentBattle == null) {
+            return;
+        }
         // check number keys
         for (var i = 0; i < 10; i++) {
             if (Input.GetKeyUp(i.ToString())) {
@@ -29,6 +32,9 @@ public class CardSelectionController : MonoBehaviour {
     }
 
     private void OnGUI() {
+        if (Battle.CurrentBattle == null) {
+            return;
+        }
         GUILayout.BeginArea(new Rect(Screen.width - 210, 10, 200, 200));
         GUILayout.BeginVertical();
         GUILayout.Label("Select a card to play:");

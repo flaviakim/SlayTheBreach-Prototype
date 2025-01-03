@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using PrototypeSystem;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 
 public class MapTile : IInstance {
@@ -14,7 +15,7 @@ public class MapTile : IInstance {
     [CanBeNull] public Creature Occupant { get; set; } = null;
     public bool IsOccupied => Occupant != null;
 
-    private GameObject _visual;
+    private readonly GameObject _visual;
 
     public MapTile(int x, int y, [NotNull] BattleMap map, [NotNull] MapTileData data, GameObject visual) {
         Position = new Vector2Int(x, y);
@@ -22,6 +23,14 @@ public class MapTile : IInstance {
         IDName = data.IDName;
 
         _visual = visual;
+    }
+
+    public void Initialize(Battle battle) {
+        battle.OnBattleEnded += OnBattleEnded;
+    }
+
+    private void OnBattleEnded(object sender, EventArgs e) {
+        Object.Destroy(_visual);
     }
 
     public class MapTileData : PrototypeData {

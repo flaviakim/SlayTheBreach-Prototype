@@ -6,6 +6,7 @@ public class BattleFactory : InstanceFactory<Battle, BattleData, BattleFactory> 
     protected override IPrototypeCollection<BattleData> PrototypeCollection { get; } = new BattlePrototypeCollection();
 
     private readonly BattleMapFactory _battleMapFactory = new();
+    private readonly WinConditionFactory _winConditionFactory = new();
 
     public Battle CreateBattleInstance(string battleId) {
         var battleData = PrototypeCollection.TryGetPrototypeForName(battleId);
@@ -15,11 +16,17 @@ public class BattleFactory : InstanceFactory<Battle, BattleData, BattleFactory> 
         }
 
         var battleMap = _battleMapFactory.CreateBattleMap(battleData.BattleMapIDName);
+        var winConditions = new IWinCondition[battleData.WinConditionIds.Length];
+        for (var i = 0; i < battleData.WinConditionIds.Length; i++) {
+            winConditions[i] = _winConditionFactory.CreateWinCondition(battleData.WinConditionIds[i]);
+        }
 
-        var battle = new Battle(battleId, battleData.StartHandSize, battleMap);
+        var battle = new Battle(battleId, battleData.StartHandSize, battleMap, winConditions);
 
         SpawnEnemies(battle, battleMap, battleData.EnemyCreatureIdsToSpawn);
         SpawnPlayerCreatures(battle, battleMap, battleData.PlayerCreatureIdsToSpawn);
+
+        battle.Initialize();
 
         return battle;
     }

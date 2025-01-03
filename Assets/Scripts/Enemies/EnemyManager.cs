@@ -12,6 +12,8 @@ public class EnemyManager {
     private readonly EnemyMoveHandler _enemyMoveHandler;
     private readonly Battle _battle;
 
+    public int EnemiesCount => _enemies.Count;
+
 
     public Enemy CurrentEnemy {
         get {
