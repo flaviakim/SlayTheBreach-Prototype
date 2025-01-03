@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Newtonsoft.Json;
 
 public static class AssetLoader {
 
@@ -13,11 +14,14 @@ public static class AssetLoader {
             return null!;
         }
 
-        var jsonFiles = Directory.GetFiles(jsonFullPath, "*.json");
+        Debug.Log($"Loading json files from {jsonFullPath}");
+
+        var files = Directory.GetFiles(jsonFullPath, "*.json");
+        Debug.Log($"Found {files.Length} json files in {jsonFullPath}");
         var jsonList = new List<T>();
-        foreach (var jsonFile in jsonFiles) {
-            var json = File.ReadAllText(jsonFile);
-            var jsonItem = JsonUtility.FromJson<T>(json);
+        foreach (var jsonFile in files) {
+            var jsonItem = LoadJson<T>(jsonFile);
+            Debug.Assert(jsonItem != null, "Failed to load json item");
             jsonList.Add(jsonItem);
         }
         return jsonList;
@@ -31,7 +35,7 @@ public static class AssetLoader {
         }
 
         var json = File.ReadAllText(jsonFullPath);
-        return JsonUtility.FromJson<T>(json);
+        return JsonConvert.DeserializeObject<T>(json);
     }
 
     public static Sprite LoadSprite(string spritePath) { // TODO: store sprites in a dictionary to avoid loading the same sprite multiple times
