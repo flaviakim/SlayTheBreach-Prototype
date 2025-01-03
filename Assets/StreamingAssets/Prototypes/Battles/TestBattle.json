@@ -1,5 +1,6 @@
 {
   "IDName": "TestBattle",
+  "BattleMapIDName": "TestBattleMap",
   "EnemyCreatureIdsToSpawn": [
     "goblin",
     "goblin",

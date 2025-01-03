@@ -2,28 +2,20 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CreaturesManager : MonoBehaviour {
-    public event EventHandler<DeathEventArgs> OnCreatureDeathEvent = null!;
+public class CreaturesManager {
+    public event EventHandler<DeathEventArgs> OnCreatureDeathEvent;
 
     // private readonly CreatureFactory _creatureFactory = new CreatureFactory();
     public List<Creature> CreaturesInBattle { get; } = new();
 
-    private static CreaturesManager Instance { get; set; } = null!;
+    private readonly CreatureFactory _creatureFactory = new();
 
-    private CreatureFactory _creatureFactory = new CreatureFactory();
-
-    private void Awake() {
-        if (Instance != null) {
-            Destroy(gameObject);
-            throw new System.Exception("CreaturesManager already initialized");
-        }
+    public CreaturesManager() {
         _creatureFactory.PreloadPrototypes();
-
-        Instance = this;
     }
 
     public Creature SpawnCreature(string creatureID, MapTile tile) {
-        var creature = _creatureFactory.CreateCreature(creatureID, tile, transform);
+        var creature = _creatureFactory.CreateCreature(creatureID, tile);
         CreaturesInBattle.Add(creature);
         creature.DeathEvent += (sender, e) => {
             CreaturesInBattle.Remove(e.DeadCreature);

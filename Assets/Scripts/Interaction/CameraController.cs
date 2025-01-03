@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour {
     }
 
     private void Start() {
-        var map = FindFirstObjectByType<BattleMap>();
+        var map = Battle.CurrentBattle.BattleMap;
         if (map == null) {
             throw new Exception("BattleMap not found");
         }

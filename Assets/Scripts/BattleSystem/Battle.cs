@@ -32,7 +32,7 @@ public class Battle : IInstance {
     // }
 
 
-    public Battle(string idName, int startHandSize) {
+    public Battle(string idName, int startHandSize, BattleMap battleMap) {
         if (CurrentBattle != null) { // TODO this should be removed, but it is useful for debugging
             Debug.LogWarning("CurrentBattle already initialized, not yet removed.");
         }
@@ -40,10 +40,10 @@ public class Battle : IInstance {
         IDName = idName;
         _startHandSize = startHandSize;
 
-        CardsManager = Object.FindFirstObjectByType<CardsManager>(); // TODO change to new CardsManager()
-        BattleMap = Object.FindFirstObjectByType<BattleMap>(); // TODO change to new BattleMap()
+        CardsManager = new CardsManager();
+        BattleMap = battleMap;
         CardEffectHandler = new CardEffectHandler(this);
-        CreaturesManager = Object.FindFirstObjectByType<CreaturesManager>(); // TODO change to new CreaturesManager()
+        CreaturesManager = new CreaturesManager();
         EnemyManager = new EnemyManager(this);
 
 
@@ -114,14 +114,15 @@ public class Battle : IInstance {
 }
 
 public class BattleData : PrototypeData {
-    public string[] EnemyCreatureIdsToSpawn;
-    public string[] PlayerCreatureIdsToSpawn;
-    public int StartHandSize;
+    public readonly string[] EnemyCreatureIdsToSpawn;
+    public readonly string[] PlayerCreatureIdsToSpawn;
+    public readonly int StartHandSize;
+    public readonly string BattleMapIDName;
 
-    public BattleData(string idName, int startHandSize, string[] playerCreatureIdsToSpawn, string[] enemyCreatureIdsToSpawn) : base(idName) {
+    public BattleData(string idName, int startHandSize, string[] playerCreatureIdsToSpawn, string[] enemyCreatureIdsToSpawn, string battleMapIDName) : base(idName) {
         StartHandSize = startHandSize;
         PlayerCreatureIdsToSpawn = playerCreatureIdsToSpawn;
         EnemyCreatureIdsToSpawn = enemyCreatureIdsToSpawn;
+        BattleMapIDName = battleMapIDName;
     }
-
 }

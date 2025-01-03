@@ -1,35 +1,35 @@
 using System;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using PrototypeSystem;
 using UnityEngine;
 
-public class MapTile : MonoBehaviour {
-    public Vector2Int Position { get; private set; }
-    public BattleMap Map { get; private set; } = null!;
 
-    public TileType Type { get; private set; }
+public class MapTile : IInstance {
+
+    public string IDName { get; }
+    public Vector2Int Position { get; private set; }
+    public BattleMap Map { get; private set; }
+
     [CanBeNull] public Creature Occupant { get; set; } = null;
     public bool IsOccupied => Occupant != null;
 
-    [SerializeField] private MapTileVisual visual;
+    private GameObject _visual;
 
-    public void Initialize(int x, int y, [NotNull] BattleMap map, TileType type) {
-        if (Map != null) {
-            throw new System.Exception("MapTile already initialized");
-        }
-
+    public MapTile(int x, int y, [NotNull] BattleMap map, [NotNull] MapTileData data, GameObject visual) {
         Position = new Vector2Int(x, y);
         Map = map;
-        Type = type;
-        gameObject.name = $"MapTile ({x}, {y}) {type}";
-        transform.position = new Vector3(x, y, 0);
-        transform.parent = map.transform;
+        IDName = data.IDName;
 
-        visual.SetTileType(type);
-
+        _visual = visual;
     }
-}
 
-public enum TileType {
-    Grass,
-    Water,
+    public class MapTileData : PrototypeData {
+        public string SpritePath { get; }
+
+        [JsonConstructor]
+        public MapTileData(string idName, string spritePath) : base(idName) {
+            SpritePath = spritePath;
+        }
+    }
 }

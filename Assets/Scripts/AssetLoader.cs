@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class AssetLoader {
 
-    public static Sprite LoadSprite(string spritePath) {
+    public static Sprite LoadSprite(string spritePath) { // TODO: store sprites in a dictionary to avoid loading the same sprite multiple times
         const string spriteBasePath = "Sprites";
         if (string.IsNullOrEmpty(spritePath)) {
             Debug.LogError("Sprite path is null or empty.");
@@ -19,7 +19,7 @@ public static class AssetLoader {
         var texture = new Texture2D(1, 1);
         texture.LoadImage(bytes);
         const int pixelsPerUnit = 32;
-        var pivot = new Vector2(0.5f, 0.5f);
+        var pivot = new Vector2(0, 0);
         var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), pivot, pixelsPerUnit);
         sprite.name = Path.GetFileNameWithoutExtension(spritePath);
         sprite.texture.filterMode = FilterMode.Point;

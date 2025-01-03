@@ -48,7 +48,7 @@ public class CardEffectHandler {
             if (CurrentEffect == null) return;
             if (!Input.GetMouseButtonUp(0)) return;
             var mouseWorldPosition = CameraController.Instance.GetMouseWorldPosition();
-            if (!BattleMap.CurrentBattleMap.TryGetTile(mouseWorldPosition, out var tile)) return;
+            if (!Battle.BattleMap.TryGetTile(mouseWorldPosition, out var tile)) return;
             CurrentEffect.OnSelectedTile(this, tile, out var effectFinished);
             if (effectFinished) {
                 FinishUpCurrentEffect();

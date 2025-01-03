@@ -8,7 +8,7 @@ namespace GameLoop {
         private readonly BattleFactory _battleFactory = new BattleFactory();
         private Battle _battle;
 
-        private void Start() {
+        private void Awake() {
             StartBattle(battleId);
         }
 

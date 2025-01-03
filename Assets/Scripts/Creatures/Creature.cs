@@ -24,13 +24,13 @@ public class Creature : IInstance {
 
     private readonly GameObject _gameObject;
 
-    public Creature([NotNull] CreatureData prototypeData, [NotNull] MapTile tile, Transform transform) {
+    public Creature([NotNull] CreatureData prototypeData, [NotNull] MapTile tile, [CanBeNull] Transform parentTransform = null) {
         PrototypeData = prototypeData;
 
         CurrentHealth = BaseHealth;
 
-        _gameObject = new GameObject($"Creature: {IDName}");
-        _gameObject.transform.parent = transform;
+        _gameObject = new GameObject($"Creature: {IDName}"); // TODO create GO in Factory, pass in Constructor
+        _gameObject.transform.parent = parentTransform;
         var spriteRenderer = _gameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = AssetLoader.LoadSprite(PrototypeData.SpritePath);
         spriteRenderer.sortingLayerName = "Creature";
@@ -55,7 +55,7 @@ public class Creature : IInstance {
         // 3. move to the new tile
         CurrentTile = tile;
         CurrentTile.Occupant = this;
-        const float tileOffset = 0.5f;
+        const float tileOffset = 0;
         _gameObject.transform.position = new Vector3(tile.Position.x + tileOffset, tile.Position.y + tileOffset, 0);
 
         return true;

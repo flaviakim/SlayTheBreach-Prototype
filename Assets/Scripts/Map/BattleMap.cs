@@ -2,46 +2,42 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using PrototypeSystem;
 using UnityEngine;
 
-public class BattleMap : MonoBehaviour {
+public class BattleMap : IInstance {
 
-    public static BattleMap CurrentBattleMap { get; private set; } = null!;
+    public string IDName { get; }
 
-    [SerializeField] private int width = 10;
-    [SerializeField] private int height = 10;
+    public int Width { get; }
 
-    [SerializeField] private MapTile mapTilePrefab;
+    public int Height { get; }
 
-    public int Width => width;
-    public int Height => height;
+    private MapTile[,] _tiles;
 
-    private MapTile[,] _tiles = null!;
 
-    private void Awake() {
+
+    public BattleMap([NotNull] BattleMapData battleMapData, MapTileFactory mapTileFactory) {
+        IDName = battleMapData.IDName;
+        Width = battleMapData.Width;
+        Height = battleMapData.Height;
+
         CreateTiles();
-        if (CurrentBattleMap != null) {
-            Debug.LogWarning("CurrentBattleMap already initialized, not yet removed.");
-        }
-        CurrentBattleMap = this;
 
         return;
 
         void CreateTiles() {
-            _tiles = new MapTile[width, height];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    var type = (TileType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(TileType)).Length);
-                    _tiles[x, y] = CreateTile(x, y, type);
+            var allNames = mapTileFactory.GetPrototypeNames();
+            _tiles = new MapTile[Width, Height];
+            for (int x = 0; x < Width; x++) {
+                for (int y = 0; y < Height; y++) {
+                    var idName = allNames[UnityEngine.Random.Range(0, allNames.Count)];
+                    _tiles[x, y] = mapTileFactory.CreateMapTile(idName, x, y, this);
                 }
             }
         }
 
-        MapTile CreateTile(int x, int y, TileType type) {
-            var tile = Instantiate(mapTilePrefab);
-            tile.Initialize(x, y, this, type);
-            return tile;
-        }
     }
 
     public bool TryGetTile(Vector2 position, out MapTile tile) {
@@ -49,7 +45,7 @@ public class BattleMap : MonoBehaviour {
     }
 
     public bool TryGetTile(Vector2Int position, out MapTile tile) {
-        if (position.x < 0 || position.x >= width || position.y < 0 || position.y >= height) {
+        if (position.x < 0 || position.x >= Width || position.y < 0 || position.y >= Height) {
             tile = null!;
             return false;
         }
@@ -60,8 +56,8 @@ public class BattleMap : MonoBehaviour {
 
     public List<MapTile> GetTilesWhere(Func<MapTile, bool> predicate) {
         var result = new List<MapTile>();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int x = 0; x < Width; x++) {
+            for (int y = 0; y < Height; y++) {
                 var tile = _tiles[x, y];
                 if (predicate(tile)) {
                     result.Add(tile);
@@ -81,8 +77,8 @@ public class BattleMap : MonoBehaviour {
 
     public List<MapTile> GetTilesInRange(MapTile fromTile, int distance, Func<MapTile, bool> predicate = null, bool includeFromTile = false) {
         var result = new List<MapTile>();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int x = 0; x < Width; x++) {
+            for (int y = 0; y < Height; y++) {
                 // If the map were ever to be bigger, we should probably use a more efficient way to find the tiles in range
                 var tile = _tiles[x, y];
                 if (!includeFromTile && tile == fromTile) {
@@ -113,5 +109,17 @@ public class BattleMap : MonoBehaviour {
         }
 
         return new List<MapTile> { actualEndTile };
+    }
+
+
+    public class BattleMapData : PrototypeData {
+        public int Width { get; }
+        public int Height { get; }
+
+        [JsonConstructor]
+        public BattleMapData(string idName, int width, int height) : base(idName) {
+            Width = width;
+            Height = height;
+        }
     }
 }

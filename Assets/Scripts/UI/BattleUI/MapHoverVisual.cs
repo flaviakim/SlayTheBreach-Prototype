@@ -25,7 +25,7 @@ public class MapHoverVisual : MonoBehaviour {
 
     private static string GetInfoTextForTile(MapTile infoTile) {
         var stringBuilder = new System.Text.StringBuilder();
-        stringBuilder.AppendLine($"Tile ({infoTile.Position}) {infoTile.Type}");
+        stringBuilder.AppendLine($"Tile ({infoTile.Position}) {infoTile.IDName}");
         var occupant = infoTile.Occupant;
         if (occupant != null) {
             stringBuilder.AppendLine($"{occupant.CreatureName}");
