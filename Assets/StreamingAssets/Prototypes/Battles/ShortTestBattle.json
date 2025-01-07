@@ -1,0 +1,15 @@
+{
+  "IDName": "ShortTestBattle",
+  "BattleMapIDName": "TestBattleMap",
+  "EnemyCreatureIdsToSpawn": [
+    "test"
+  ],
+  "PlayerCreatureIdsToSpawn": [
+    "fighter",
+    "fighter",
+  ],
+  "StartHandSize": 6,
+  "WinConditionIds": [
+    "KillAllEnemies"
+  ]
+}
