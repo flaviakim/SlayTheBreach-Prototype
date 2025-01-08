@@ -47,6 +47,9 @@ TagManager:
   - name: Creature
     uniqueID: 2832038209
     locked: 0
+  - name: Cards
+    uniqueID: 3324218489
+    locked: 0
   - name: Info
     uniqueID: 3487857139
     locked: 0

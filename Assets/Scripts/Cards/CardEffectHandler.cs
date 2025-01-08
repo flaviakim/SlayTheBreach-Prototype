@@ -6,8 +6,8 @@ using UnityEngine;
 public class CardEffectHandler : IBattleManager {
     public event EventHandler<EffectEventArgs> OnEffectStarted;
     public event EventHandler<EffectEventArgs> OnEffectFinished;
-    public event EventHandler<CardEventArgs> OnCardStarted;
-    public event EventHandler<CardEventArgs> OnCardFinished;
+    public event EventHandler<CardPlayedEffectEventArgs> OnCardStarted;
+    public event EventHandler<CardPlayedEffectEventArgs> OnCardFinished;
 
     public Battle Battle { get; }
 
@@ -93,7 +93,7 @@ public class CardEffectHandler : IBattleManager {
         }
 
         CurrentCard = card;
-        OnCardStarted?.Invoke(this, new CardEventArgs(card, cardTarget));
+        OnCardStarted?.Invoke(this, new CardPlayedEffectEventArgs(card, cardTarget));
         PlayNextEffect();
     }
 
@@ -124,7 +124,7 @@ public class CardEffectHandler : IBattleManager {
 
         void FinishUpCurrentCard() {
             Debug.Log($"Finished playing all effects");
-            OnCardFinished?.Invoke(this, new CardEventArgs(CurrentCard, CurrentCardTarget));
+            OnCardFinished?.Invoke(this, new CardPlayedEffectEventArgs(CurrentCard, CurrentCardTarget));
             CurrentCardTarget = null;
             CurrentCard = null;
             OtherSelectedCreatures.Clear();
@@ -148,11 +148,11 @@ public class CardEffectHandler : IBattleManager {
     }
 }
 
-public class CardEventArgs : EventArgs {
+public class CardPlayedEffectEventArgs : EventArgs {
     public Card Card { get; }
     public Creature Creature { get; }
 
-    public CardEventArgs(Card card, Creature creature) {
+    public CardPlayedEffectEventArgs(Card card, Creature creature) {
         Card = card;
         Creature = creature;
     }

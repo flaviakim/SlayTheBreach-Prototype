@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerDeck {
+    public event EventHandler<CardDeckEventArgs> CardDrawnEvent;
     private readonly List<Card> _allPlayerCards = new();
 
     private readonly Queue<Card> _drawPile = new();
@@ -56,6 +58,7 @@ public class PlayerDeck {
 
         var card = _drawPile.Dequeue();
         _hand.Add(card);
+        OnCardDrawnEvent(card);
     }
 
     private void ShuffleDiscardPileIntoDrawPile() {
@@ -69,5 +72,17 @@ public class PlayerDeck {
             _discardPile.RemoveAt(randomIndex);
             _drawPile.Enqueue(card);
         }
+    }
+
+    protected virtual void OnCardDrawnEvent(Card card) {
+        CardDrawnEvent?.Invoke(this, new CardDeckEventArgs(card));
+    }
+}
+
+public class CardDeckEventArgs : EventArgs {
+    public Card Card { get; }
+
+    public CardDeckEventArgs(Card card) {
+        Card = card;
     }
 }

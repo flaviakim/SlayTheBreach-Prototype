@@ -6,8 +6,8 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 public class Battle : IInstance {
-    public event EventHandler OnPlayerHasPlayedCard;
-    public event EventHandler OnBattleWon;
+    public event EventHandler<CardPlayedEventArgs> PlayerHasPlayedCardEvent;
+    public event EventHandler BattleWonEvent;
     public event EventHandler BattleEndedEvent;
 
     public string IDName { get; }
@@ -98,7 +98,7 @@ public class Battle : IInstance {
         foreach (var winCondition in winConditionsMet) {
             Debug.Log($"Win condition met: {winCondition.Name}");
         }
-        OnBattleWon?.Invoke(this, EventArgs.Empty);
+        BattleWonEvent?.Invoke(this, EventArgs.Empty);
         BattleEndedEvent?.Invoke(this, EventArgs.Empty);
         CurrentBattle = null!;
     }
@@ -127,7 +127,7 @@ public class Battle : IInstance {
         CardsManager.PlayerDeck.DrawCards(_startHandSize);
     }
 
-    private void OnCardFinishedPlaying(object sender, CardEventArgs e) {
+    private void OnCardFinishedPlaying(object sender, CardPlayedEffectEventArgs e) {
         // TODO this should eventually be called by the player, not automatically
         if (CheckForWin())
             return;
@@ -149,7 +149,7 @@ public class Battle : IInstance {
         }
 
         CardEffectHandler.PlayCard(playedCard, creature);
-        OnPlayerHasPlayedCard?.Invoke(this, EventArgs.Empty);
+        PlayerHasPlayedCardEvent?.Invoke(this, new CardPlayedEventArgs(playedCard, cardIndex, creature));
 
         return true;
     }
@@ -159,6 +159,19 @@ public class Battle : IInstance {
         CardEffectHandler.OnGUI();
     }
 }
+
+public class CardPlayedEventArgs : EventArgs {
+    public Card Card { get; }
+    public int CardIndex { get; }
+    public Creature PlayerCreature { get; }
+
+    public CardPlayedEventArgs(Card card, int cardIndex, Creature playerCreature) {
+        Card = card;
+        CardIndex = cardIndex;
+        PlayerCreature = playerCreature;
+    }
+}
+
 
 public class BattleData : PrototypeData {
     public readonly string[] EnemyCreatureIdsToSpawn;

@@ -59,7 +59,7 @@ public class EnemyManager : IBattleManager {
 
         Debug.Assert(_enemies.All(enemy => enemy.NextMove != null), "Trying to start battle, but enemies have no moves");
 
-        _battle.OnPlayerHasPlayedCard += (sender, args) => ChooseEnemyMoves(updateOnly: true);
+        _battle.PlayerHasPlayedCardEvent += (sender, args) => ChooseEnemyMoves(updateOnly: true);
     }
 
 
