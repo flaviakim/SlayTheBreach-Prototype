@@ -5,21 +5,30 @@ using UnityEngine.SceneManagement;
 
 namespace GameLoop {
     public class BattleLoop : MonoBehaviour {
-
+        [SerializeField] private string battleSceneName = "BattleScene";
         private readonly BattleFactory _battleFactory = new();
         private Battle _battle;
 
-        [SerializeField] private string battleSceneName;
         private string _sceneNameWhenBattleEnds;
 
         private void Awake() {
             // Make sure, only one instance of this object exists
             var objects = FindObjectsByType<BattleLoop>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             if (objects.Length > 1) {
+                Debug.LogWarning("Multiple BattleLoop instances found. Destroying all but one.");
                 Destroy(gameObject);
                 return;
             }
+
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void Update() {
+            _battle?.Update();
+        }
+
+        private void OnGUI() {
+            _battle?.OnGUI();
         }
 
         public List<string> GetAllBattlesIDs() {
@@ -58,17 +67,7 @@ namespace GameLoop {
             _battle.BattleEndedEvent -= OnBattleEnded;
             _battle = null;
 
-            if (!string.IsNullOrEmpty(_sceneNameWhenBattleEnds)) {
-                SceneManager.LoadScene(_sceneNameWhenBattleEnds);
-            }
-        }
-
-        private void Update() {
-            _battle?.Update();
-        }
-
-        private void OnGUI() {
-            _battle?.OnGUI();
+            if (!string.IsNullOrEmpty(_sceneNameWhenBattleEnds)) SceneManager.LoadScene(_sceneNameWhenBattleEnds);
         }
     }
 }

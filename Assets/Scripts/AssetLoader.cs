@@ -14,8 +14,6 @@ public static class AssetLoader {
             return null!;
         }
 
-        Debug.Log($"Loading json files from {jsonFullPath}");
-
         var files = Directory.GetFiles(jsonFullPath, "*.json");
         Debug.Log($"Found {files.Length} json files in {jsonFullPath}");
         var jsonList = new List<T>();

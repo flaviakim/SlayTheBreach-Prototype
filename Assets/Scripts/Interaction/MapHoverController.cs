@@ -11,7 +11,11 @@ public class MapHoverController : MonoBehaviour {
     public static HoverInfo HoverInfo;
 
     private void Start() {
-        _map = Battle.CurrentBattle.BattleMap;
+        var battle = Battle.CurrentBattle;
+        if (battle == null) {
+            throw new Exception("Battle not found");
+        }
+        _map = battle.BattleMap;
         if (_map == null) {
             throw new Exception("BattleMap not found");
         }

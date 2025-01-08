@@ -1,18 +1,26 @@
-using System;
 using GameLoop;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class MainMenuUI : MonoBehaviour {
+public class BattleSelectionUI : MonoBehaviour {
 
     private UIDocument _uiDocument;
     private BattleLoop _battleLoop;
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string battleSelectionSceneName = "BattleSelectionScene";
 
     private void Awake() {
         _uiDocument = GetComponent<UIDocument>();
-        _battleLoop = FindFirstObjectByType<BattleLoop>() ?? Instantiate(new GameObject("NewBattleLoop")).AddComponent<BattleLoop>();
+        _battleLoop = FindFirstObjectByType<BattleLoop>() ?? new GameObject("NewBattleLoop").AddComponent<BattleLoop>();
+
+        ShowMenu();
+    }
+
+    public void ShowMenu() {
         CreateMenu();
+    }
+
+    public void HideMenu() {
+        _uiDocument.rootVisualElement.Clear();
     }
 
     /// <summary>
@@ -23,10 +31,9 @@ public class MainMenuUI : MonoBehaviour {
 
         var root = _uiDocument.rootVisualElement;
         root.style.flexDirection = FlexDirection.Column;
+        root.style.flexGrow = 1;
         root.style.alignItems = Align.Center;
         root.style.justifyContent = Justify.Center;
-        root.style.width = 500;
-        root.style.height = 500;
 
         var label = new Label("Choose a battle to start:");
         root.Add(label);
@@ -35,7 +42,8 @@ public class MainMenuUI : MonoBehaviour {
         root.Add(selector);
 
         var startButton = new Button(() => {
-            _battleLoop.StartBattleInNewScene(selector.value, mainMenuSceneName);
+            HideMenu();
+            _battleLoop.StartBattleInNewScene(selector.value, battleSelectionSceneName);
         });
         startButton.text = "Start";
         root.Add(startButton);
