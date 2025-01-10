@@ -23,6 +23,8 @@ public class MouseTracker : MonoBehaviour {
     public event EventHandler<MouseClickEventArgs> MouseClickEvent;
     public event EventHandler<MouseDragEventArgs> MouseDragEvent;
 
+    public static MouseTracker Instance { get; private set; } = null!;
+
     [CanBeNull] private IMouseHoverTarget _currentHoverTarget;
     [CanBeNull] private IMouseClickTarget _currentClickTarget;
     [CanBeNull] private IMouseDragTarget _currentDragTarget;
@@ -30,6 +32,15 @@ public class MouseTracker : MonoBehaviour {
 
     private readonly List<RaycastHit2D> _raycastHit2DResults = new(10);
     private CameraController _cameraController;
+
+    private void Awake() {
+        if (Instance != null) {
+            Debug.LogWarning($"Multiple instances of {nameof(MouseTracker)} found, destroying this instance");
+            Destroy(this);
+            return;
+        }
+        Instance = this;
+    }
 
     private void Start() {
         Physics2D.queriesHitTriggers = true;
@@ -49,6 +60,7 @@ public class MouseTracker : MonoBehaviour {
         CheckMouseHover();
         CheckMouseClick();
         CheckMouseDrag();
+        // TODO: if application focus is lost, reset _currentHoverTarget, _currentClickTarget, _currentDragTarget
         return;
 
         void CheckMouseHover() {
@@ -90,7 +102,7 @@ public class MouseTracker : MonoBehaviour {
             }
         }
 
-        void CheckMouseDrag() { // TODO check
+        void CheckMouseDrag() {
             if (Input.GetMouseButtonDown(0)) {
                 if (raySize == 0) return;
                 Debug.Log($"Mouse drag started on {hit.collider.gameObject.name}");

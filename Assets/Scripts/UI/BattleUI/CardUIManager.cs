@@ -12,6 +12,9 @@ public class CardUIManager : MonoBehaviour {
     [SerializeField] private Vector2 cardScreenCenterPosition;
     [SerializeField] private float maxCardsWidth = 10f;
 
+    private MouseTracker _mouseTracker;
+    private int? _draggingCardIndex = null;
+
 
     private void Awake() {
         _cardUIPrefab = Resources.Load<CardUI>("Prefabs/CardUI");
@@ -27,10 +30,11 @@ public class CardUIManager : MonoBehaviour {
             return;
         }
         _playerDeck = _battle.CardsManager.PlayerDeck;
-
+        _mouseTracker = MouseTracker.Instance;
 
         _playerDeck.CardDrawnEvent += OnCardDrawn;
         _battle.PlayerHasPlayedCardEvent += OnPlayerHasPlayedCard;
+        _mouseTracker.MouseDragEvent += OnMouseDragEvent;
 
         InitializeCardUI();
         return;
@@ -49,6 +53,35 @@ public class CardUIManager : MonoBehaviour {
         void InitializeCardUI() {
             Debug.Assert(_cardUIPrefab != null, "_cardUIPrefab != null");
             AddCardsToUI(_playerDeck.HandCards);
+        }
+    }
+
+    private void OnMouseDragEvent(object sender, MouseDragEventArgs e) {
+        if (_cardUIs.Count == 0) return;
+        if (e.DragTarget is not CardUI cardUI) return;
+        var indexOfDraggedCard = _cardUIs.IndexOf(cardUI);
+        switch (e.DragState) {
+            case MouseDragEventArgs.MouseDragState.Start:
+                _draggingCardIndex = indexOfDraggedCard;
+                RecalculateCardPositions();
+                break;
+            case MouseDragEventArgs.MouseDragState.Continuous:
+                Debug.Assert(_draggingCardIndex.HasValue, "_draggingCardIndex.HasValue");
+                Debug.Assert(indexOfDraggedCard == _draggingCardIndex, "indexOfDraggedCard == _draggingCardIndex");
+                break;
+            case MouseDragEventArgs.MouseDragState.End:
+                Debug.Assert(_draggingCardIndex.HasValue, "_draggingCardIndex.HasValue");
+                Debug.Assert(indexOfDraggedCard == _draggingCardIndex, "indexOfDraggedCard == _draggingCardIndex");
+                _draggingCardIndex = null;
+                Debug.Assert(Battle.CurrentBattle != null, "Battle.CurrentBattle != null");
+                var mouseWorldPos = CameraController.Instance.GetMouseWorldPosition();
+                var successfulPlay = Battle.CurrentBattle.TryPlayCard(indexOfDraggedCard, mouseWorldPos);
+                if (!successfulPlay) {
+                    RecalculateCardPositions(); // Move the card back to its original position
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -73,24 +106,25 @@ public class CardUIManager : MonoBehaviour {
 
     private void AddCardToUI(Card card) {
         var newIndex = _playerDeck.HandCards.Count - 1;
-        var cardUI = CreateCardUI(card, newIndex);
+        var cardUI = CreateCardUI(card);
         _cardUIs.Add(cardUI);
+
         RecalculateCardPositions();
     }
 
     private void AddCardsToUI(List<Card> cards) {
         for (var index = 0; index < cards.Count; index++) {
             var card = cards[index];
-            var cardUI = CreateCardUI(card, index);
+            var cardUI = CreateCardUI(card);
             _cardUIs.Add(cardUI);
         }
 
         RecalculateCardPositions();
     }
 
-    private CardUI CreateCardUI(Card card, int handIndex) {
+    private CardUI CreateCardUI(Card card) {
         var cardUI = Instantiate(_cardUIPrefab, transform);
-        cardUI.Initialize(card, handIndex);
+        cardUI.Initialize(card);
         return cardUI;
     }
 
@@ -99,13 +133,19 @@ public class CardUIManager : MonoBehaviour {
         Debug.Assert(_cardUIs.Zip(_playerDeck.HandCards, (ui, card) => ui.Card == card).All(inSync => inSync), "CardUIs and HandCards are not in sync");
 
         var cardCount = _cardUIs.Count;
+        var cardCountWithoutDraggedCard = _draggingCardIndex.HasValue ? cardCount - 1 : cardCount;
         var cardWidth = _cardUIPrefab.Width;
-        var totalWidth = cardCount * cardWidth;
+        var totalWidth = cardCountWithoutDraggedCard * cardWidth;
         var startX = cardScreenCenterPosition.x - totalWidth / 2 + cardWidth / 2;
 
         for (var i = 0; i < cardCount; i++) {
+            if (i == _draggingCardIndex) continue;
             var cardUI = _cardUIs[i];
-            cardUI.transform.localPosition = new Vector3(startX + i * cardWidth, cardScreenCenterPosition.y, 0);
+            var indexWithoutDraggingCard = i > _draggingCardIndex ? i - 1 : i;
+            var x = startX + indexWithoutDraggingCard * cardWidth;
+            var targetPosition = new Vector2(x, cardScreenCenterPosition.y);
+            cardUI.SetTargetPosition(targetPosition);
+            // cardUI.transform.localPosition = new Vector3(x, cardScreenCenterPosition.y, 0);
         }
     }
 
