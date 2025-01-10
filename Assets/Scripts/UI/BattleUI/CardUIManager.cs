@@ -41,7 +41,7 @@ public class CardUIManager : MonoBehaviour {
             Debug.Assert(mainCamera != null, "mainCamera != null");
             transform.SetParent(mainCamera.transform);
             // set the z position to 0 to make sure the card is always in front of the camera:
-            transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, 0);
+            transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, -1);
 
             // transform.localPosition = new Vector3(cardScreenCenterPosition.x, cardScreenCenterPosition.y, 0);
         }
