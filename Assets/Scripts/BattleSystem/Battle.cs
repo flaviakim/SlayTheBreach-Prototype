@@ -137,10 +137,28 @@ public class Battle : IInstance {
         }
     }
 
-    public bool PlayCard(int cardIndex, [NotNull] Creature creature) {
+    public bool TryPlayCard(int cardIndex, Vector2 worldPosition) {
+        if (!BattleMap.TryGetTile(worldPosition, out var mapTile)) return false;
+        return TryPlayCard(cardIndex, mapTile);
+    }
+
+    public bool TryPlayCard(int cardIndex, [NotNull] MapTile mapTile) {
+        var creature = mapTile.Occupant;
+        if (creature == null) {
+            Debug.Log("Trying to play card on empty tile");
+            return false;
+        }
+        return TryPlayCard(cardIndex, creature);
+    }
+
+    public bool TryPlayCard(int cardIndex, [NotNull] Creature creature) {
         if (CurrentTurn != Faction.Player) {
-            Debug.LogWarning("Trying to play card, but it is not player's turn");
+            Debug.Log("Trying to play card, but it is not player's turn");
             // TODO event for this, for example to play an error sound
+            return false;
+        }
+        if (!creature.IsPlayerControlled) {
+            Debug.Log("Trying to play card on enemy creature");
             return false;
         }
 
