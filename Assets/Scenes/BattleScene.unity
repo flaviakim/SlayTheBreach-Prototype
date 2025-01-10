@@ -679,6 +679,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef9b08403cf44f41b620e042873ebcac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cardsOriginPosition: {x: 0, y: 0}
   cardScreenCenterPosition: {x: 0, y: -4}
   maxCardsWidth: 10
 --- !u!4 &1503863400

@@ -9,6 +9,7 @@ public class CardUIManager : MonoBehaviour {
     private CardUI _cardUIPrefab;
     private readonly List<CardUI> _cardUIs = new();
 
+    [SerializeField] private Vector2 cardsOriginPosition;
     [SerializeField] private Vector2 cardScreenCenterPosition;
     [SerializeField] private float maxCardsWidth = 10f;
 
@@ -124,6 +125,7 @@ public class CardUIManager : MonoBehaviour {
 
     private CardUI CreateCardUI(Card card) {
         var cardUI = Instantiate(_cardUIPrefab, transform);
+        cardUI.transform.localPosition = cardsOriginPosition;
         cardUI.Initialize(card);
         return cardUI;
     }
@@ -153,6 +155,6 @@ public class CardUIManager : MonoBehaviour {
     private void OnDrawGizmosSelected() {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(cardScreenCenterPosition, new Vector3(maxCardsWidth, 1, 1));
-
+        Gizmos.DrawWireSphere(cardsOriginPosition, 0.5f);
     }
 }
