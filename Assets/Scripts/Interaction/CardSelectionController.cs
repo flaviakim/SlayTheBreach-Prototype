@@ -20,7 +20,7 @@ public class CardSelectionController : MonoBehaviour {
             if (Battle.CurrentBattle.BattleMap.TryGetTile(mouseWorldPosition, out var clickedOnTile) && clickedOnTile.Occupant != null &&
                 clickedOnTile.Occupant.IsPlayerControlled) {
                 Debug.Log($"Playing card {_selectedCardIndex} on {clickedOnTile.Occupant}");
-                var success = Battle.CurrentBattle.PlayCard(_selectedCardIndex.Value, clickedOnTile.Occupant);
+                var success = Battle.CurrentBattle.TryPlayCard(_selectedCardIndex.Value, clickedOnTile.Occupant);
                 if (success) {
                     _selectedCardIndex = null;
                 }

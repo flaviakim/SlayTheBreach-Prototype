@@ -16,6 +16,10 @@ public class CameraController : MonoBehaviour {
     }
 
     private void Start() {
+
+        if (Battle.CurrentBattle == null) {
+            throw new Exception("Battle not found");
+        }
         var map = Battle.CurrentBattle.BattleMap;
         if (map == null) {
             throw new Exception("BattleMap not found");

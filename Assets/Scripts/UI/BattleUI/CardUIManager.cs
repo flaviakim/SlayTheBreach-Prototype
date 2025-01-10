@@ -53,11 +53,17 @@ public class CardUIManager : MonoBehaviour {
     }
 
     private void OnPlayerHasPlayedCard(object sender, CardPlayedEventArgs e) {
+        Debug.Log($"CardUIManager: OnPlayerHasPlayedCard {e.CardIndex}");
         Debug.Assert(_cardUIs.Count > 0, "_cardUIs.Count > 0");
         var cardIndex = e.CardIndex;
         var cardUI = _cardUIs[cardIndex];
+        DestroyCardUI(cardUI, cardIndex);
+    }
+
+    private void DestroyCardUI(CardUI cardUI, int cardIndex) {
         _cardUIs.RemoveAt(cardIndex);
-        Destroy(cardUI.gameObject);
+        cardUI.gameObject.SetActive(false);
+        Destroy(cardUI.gameObject, 0.5f); // Delayed, so stuff like OnMouseHoverExit can still be called correctly
         RecalculateCardPositions();
     }
 
@@ -66,22 +72,25 @@ public class CardUIManager : MonoBehaviour {
     }
 
     private void AddCardToUI(Card card) {
-        var cardUI = CreateCardUI(card);
+        var newIndex = _playerDeck.HandCards.Count - 1;
+        var cardUI = CreateCardUI(card, newIndex);
         _cardUIs.Add(cardUI);
         RecalculateCardPositions();
     }
 
     private void AddCardsToUI(List<Card> cards) {
-        foreach (var card in cards) {
-            var cardUI = CreateCardUI(card);
+        for (var index = 0; index < cards.Count; index++) {
+            var card = cards[index];
+            var cardUI = CreateCardUI(card, index);
             _cardUIs.Add(cardUI);
         }
+
         RecalculateCardPositions();
     }
 
-    private CardUI CreateCardUI(Card card) {
+    private CardUI CreateCardUI(Card card, int handIndex) {
         var cardUI = Instantiate(_cardUIPrefab, transform);
-        cardUI.Initialize(card);
+        cardUI.Initialize(card, handIndex);
         return cardUI;
     }
 

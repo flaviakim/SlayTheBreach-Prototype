@@ -21,16 +21,19 @@ public interface IMouseDragTarget {
 public class MouseTracker : MonoBehaviour {
     public event EventHandler<MouseHoverEventArgs> MouseHoverChangedEvent;
     public event EventHandler<MouseClickEventArgs> MouseClickEvent;
+    public event EventHandler<MouseDragEventArgs> MouseDragEvent;
 
     [CanBeNull] private IMouseHoverTarget _currentHoverTarget;
     [CanBeNull] private IMouseClickTarget _currentClickTarget;
     [CanBeNull] private IMouseDragTarget _currentDragTarget;
+    private Vector2 _lastMouseDragPosition;
 
     private readonly List<RaycastHit2D> _raycastHit2DResults = new(10);
+    private CameraController _cameraController;
 
     private void Start() {
-        Debug.Log($"Physics2D.queriesHitTriggers: {Physics2D.queriesHitTriggers}");
         Physics2D.queriesHitTriggers = true;
+        _cameraController = CameraController.Instance;
     }
 
     private void Update() {
@@ -57,10 +60,9 @@ public class MouseTracker : MonoBehaviour {
                 return;
             }
 
-            Debug.Log($"Mouse is hovering over {hit.collider.gameObject.name}");
             var newHoverTarget = hit.collider.GetComponent<IMouseHoverTarget>();
             if (newHoverTarget == _currentHoverTarget) return;
-            Debug.Log($"Mouse hover changed from {previousHoverTarget} to {newHoverTarget}");
+            // Debug.Log($"Mouse hover changed from {previousHoverTarget} to {newHoverTarget}");
             _currentHoverTarget?.OnMouseHoverExit();
             _currentHoverTarget = newHoverTarget;
             _currentHoverTarget?.OnMouseHoverEnter();
@@ -95,24 +97,26 @@ public class MouseTracker : MonoBehaviour {
                 var dragTarget = hit.collider.GetComponent<IMouseDragTarget>();
                 if (dragTarget == null) return;
                 _currentDragTarget = dragTarget;
+                _lastMouseDragPosition = _cameraController.GetMouseWorldPosition();
                 dragTarget.OnMouseDragStart();
+                MouseDragEvent?.Invoke(this, new MouseDragEventArgs(dragTarget, MouseDragEventArgs.MouseDragState.Start));
             }
             else if (Input.GetMouseButton(0)) {
                 if (_currentDragTarget == null) return;
-                Debug.Log($"Mouse dragging on {hit.collider.gameObject.name}");
-                var dragTarget = hit.collider.GetComponent<IMouseDragTarget>();
-                if (dragTarget == _currentDragTarget) {
-                    dragTarget.OnMouseDragContinuous(new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")));
-                }
+                // Debug.Assert(hit.collider.GetComponent<IMouseDragTarget>() == _currentDragTarget, $"Mouse drag target is not under mouse; current: {_currentDragTarget}, under mouse: {hit.collider.gameObject.name}");
+
+                var currentMouseDragPosition = _cameraController.GetMouseWorldPosition();
+                _currentDragTarget.OnMouseDragContinuous(currentMouseDragPosition - _lastMouseDragPosition);
+
+                _lastMouseDragPosition = currentMouseDragPosition;
+                MouseDragEvent?.Invoke(this, new MouseDragEventArgs(_currentDragTarget, MouseDragEventArgs.MouseDragState.Continuous));
             }
             else if (Input.GetMouseButtonUp(0)) {
                 if (_currentDragTarget == null) return;
                 Debug.Log($"Mouse drag ended on {hit.collider.gameObject.name}");
-                var dragTarget = hit.collider.GetComponent<IMouseDragTarget>();
-                if (dragTarget == _currentDragTarget) {
-                    dragTarget.OnMouseDragEnd();
-                }
 
+                _currentDragTarget.OnMouseDragEnd();
+                MouseDragEvent?.Invoke(this, new MouseDragEventArgs(_currentDragTarget, MouseDragEventArgs.MouseDragState.End));
                 _currentDragTarget = null;
             }
         }
@@ -135,5 +139,21 @@ public class MouseClickEventArgs : EventArgs {
 
     public MouseClickEventArgs(IMouseClickTarget clickTarget) {
         ClickTarget = clickTarget;
+    }
+}
+
+public class MouseDragEventArgs : EventArgs {
+    public IMouseDragTarget DragTarget { get; }
+    public MouseDragState DragState { get; }
+
+    public MouseDragEventArgs(IMouseDragTarget dragTarget, MouseDragState dragState) {
+        DragTarget = dragTarget;
+        DragState = dragState;
+    }
+
+    public enum MouseDragState {
+        Start,
+        Continuous,
+        End
     }
 }
