@@ -15,9 +15,9 @@ public class MapTile : IInstance {
     [CanBeNull] public Creature Occupant { get; set; } = null;
     public bool IsOccupied => Occupant != null;
 
-    private readonly GameObject _visual;
+    private readonly MapTileVisual _visual;
 
-    public MapTile(int x, int y, [NotNull] BattleMap map, [NotNull] MapTileData data, GameObject visual) {
+    public MapTile(int x, int y, [NotNull] BattleMap map, [NotNull] MapTileData data, MapTileVisual visual) {
         Position = new Vector2Int(x, y);
         Map = map;
         IDName = data.IDName;

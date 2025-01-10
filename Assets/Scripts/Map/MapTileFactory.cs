@@ -17,7 +17,7 @@ public class MapTileFactory : InstanceFactory<MapTile, MapTile.MapTileData, MapT
         return tile;
     }
 
-    private GameObject CreateVisual(string spritePath, int x, int y) {
+    private MapTileVisual CreateVisual(string spritePath, int x, int y) {
         if (_parentGameObject == null) {
             _parentGameObject = new GameObject("MapTiles");
         }
@@ -29,6 +29,12 @@ public class MapTileFactory : InstanceFactory<MapTile, MapTile.MapTileData, MapT
         spriteRenderer.sprite = AssetLoader.LoadSprite(spritePath);
         spriteRenderer.sortingLayerName = "MapTile";
 
-        return gameObject;
+        var mapTileVisual = gameObject.AddComponent<MapTileVisual>();
+
+        var collider = gameObject.AddComponent<BoxCollider2D>();
+        collider.size = new Vector2(1, 1);
+        collider.isTrigger = true;
+
+        return mapTileVisual;
     }
 }
