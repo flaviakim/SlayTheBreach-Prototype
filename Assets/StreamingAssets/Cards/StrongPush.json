@@ -1,0 +1,16 @@
+{
+  "IDName": "StrongPush",
+  "CardName": "Strong Push",
+  "Description": "Push a creature 3 tiles, dealing 2 damage to both if it hits another creature",
+  "Effects": [
+    {
+      "Type": "PushCardEffect",
+      "Parameters": {
+        "PushIntoCreatureVersion": "PushIntoCreatureDamage",
+        "PushDistance": 3,
+        "PushRange": 2,
+        "PushDamage": 2
+      }
+    }
+  ]
+}

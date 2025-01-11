@@ -22,6 +22,26 @@ public class EffectFactory {
 
             { "MoveCardEffect", parameters => new MoveCardEffect(Convert.ToInt32(parameters["MoveDistance"])) },
 
+            // { "PushCardEffect", parameters => new PushCardEffect(
+            //     (PushIntoCreatureVersion) Enum.Parse(typeof(PushIntoCreatureVersion), parameters["PushIntoCreatureVersion"].ToString()),
+            //     Convert.ToInt32(parameters["PushDistance"]),
+            //     Convert.ToInt32(parameters["PushRange"]),
+            //     Convert.ToInt32(parameters["PushDamage"])
+            // ) },
+            // with default values, if parameters are absent instead:
+            { "PushCardEffect", parameters => new PushCardEffect(
+                (PushIntoCreatureVersion) Enum.Parse(typeof(PushIntoCreatureVersion), parameters.GetValueOrDefault("PushIntoCreatureVersion", "PushIntoCreatureDamage").ToString()),
+                Convert.ToInt32(parameters.GetValueOrDefault("PushDistance", 1)),
+                Convert.ToInt32(parameters.GetValueOrDefault("PushRange", 1)),
+                Convert.ToInt32(parameters.GetValueOrDefault("PushDamage", 0))
+            ) },
+
+
+            // Future: Possible future effects:
+            // { "DrawCardEffect", parameters => new DrawCardEffect(Convert.ToInt32(parameters["DrawAmount"])) },
+            // { "DiscardCardEffect", parameters => new DiscardCardEffect(Convert.ToInt32(parameters["DiscardAmount"])) },
+            // { "HealEffect", parameters => new HealCardEffect(Convert.ToInt32(parameters["HealAmount"])) },
+            // { "SummonEffect", parameters => new SummonCardEffect(parameters["CreatureID"].ToString()) },
             // { "LuaScriptEffect", parameters => new LuaScriptEffect(parameters["Script"].ToString()) }
         };
     }

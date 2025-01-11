@@ -1,0 +1,13 @@
+{
+  "IDName": "Shove",
+  "CardName": "Shove",
+  "Description": "Shove a creature 1 tile",
+  "Effects": [
+    {
+      "Type": "PushCardEffect",
+      "Parameters": {
+        "PushIntoCreatureVersion": "ContinuePushNextCreature"
+      }
+    }
+  ]
+}
