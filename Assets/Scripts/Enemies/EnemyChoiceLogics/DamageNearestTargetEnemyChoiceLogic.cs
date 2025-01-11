@@ -20,7 +20,10 @@ public class DamageNearestTargetEnemyChoiceLogic : IEnemyChoiceLogic {
             .GetTilesInRange(targetTile, 1, includeFromTile: false)
             .Where(tile => enemy.Creature.CanMoveTo(tile, true) || tile == enemyTile) // tile == enemyTile is for the case when the enemy is already next to the target
             .FirstOrDefault(tile => battle.BattleMap.GetDistanceBetweenTiles(enemyTile, tile) <= enemy.MovementRange);
-        Debug.Assert(tileNextToTarget != null);
+        if (tileNextToTarget == null) {
+            Debug.Log($"Enemy {enemy.Name} cannot reach target {targetTile.Occupant?.CreatureName}");
+            return new EnemyMove(enemy, new StayStillEnemyMovement(), new DoNothingEnemyEffect());
+        }
 
         var movement = new TeleportEnemyMovement(tileNextToTarget);
         // var movement = new PathEnemyMovement(battle.BattleMap.GetPathBetweenTiles(enemyTile, targetTile, stopNextToTarget: true, maxMovement: enemy.MovementRange));
