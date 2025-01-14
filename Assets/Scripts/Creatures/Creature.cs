@@ -3,10 +3,10 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using PrototypeSystem;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 public class Creature : IInstance {
     public event EventHandler<DeathEventArgs> DeathEvent;
+    public event EventHandler<CreatureMoveEventArgs> CreatureMovedEvent;
 
     public MapTile CurrentTile { get; private set; } = null!;
     public Vector2Int Position => CurrentTile.Position;
@@ -22,20 +22,13 @@ public class Creature : IInstance {
     public bool IsPlayerControlled => Faction == Faction.Player;
     public int CurrentHealth { get; private set; }
 
-    private readonly GameObject _gameObject;
-
-    public Creature([NotNull] CreatureData prototypeData, [NotNull] MapTile tile, [CanBeNull] Transform parentTransform = null) {
+    public Creature([NotNull] CreatureData prototypeData, [NotNull] MapTile tile) {
         PrototypeData = prototypeData;
 
         CurrentHealth = BaseHealth;
 
-        _gameObject = new GameObject($"Creature: {IDName}"); // TODO create GO in Factory, pass in Constructor
-        _gameObject.transform.parent = parentTransform;
-        var spriteRenderer = _gameObject.AddComponent<SpriteRenderer>();
-        spriteRenderer.sprite = AssetLoader.LoadSprite(PrototypeData.SpritePath);
-        spriteRenderer.sortingLayerName = "Creature";
-
         TryMoveTo(tile);
+        Debug.Assert(CurrentTile != null, "Creature not moved to a tile");
         Debug.Assert(CurrentTile == tile, "Creature not moved to the correct tile");
         Debug.Assert(CurrentTile.Occupant == this, "Creature not set as the occupant of the tile");
     }
@@ -53,10 +46,11 @@ public class Creature : IInstance {
         }
 
         // 3. move to the new tile
+        var oldTile = CurrentTile;
         CurrentTile = tile;
         CurrentTile.Occupant = this;
-        const float tileOffset = 0;
-        _gameObject.transform.position = new Vector3(tile.Position.x + tileOffset, tile.Position.y + tileOffset, 0);
+
+        CreatureMovedEvent?.Invoke(this, new CreatureMoveEventArgs(this, oldTile, tile));
 
         return true;
     }
@@ -102,7 +96,6 @@ public class Creature : IInstance {
     public void Destroy() {
         CurrentTile.Occupant = null;
         CurrentTile = null;
-        Object.Destroy(_gameObject);
     }
 
     public override string ToString() {
@@ -166,5 +159,17 @@ public class DeathEventArgs : EventArgs {
 
     public DeathEventArgs(Creature deadCreature) {
         DeadCreature = deadCreature;
+    }
+}
+
+public class CreatureMoveEventArgs : EventArgs {
+    public Creature Creature { get; }
+    public MapTile FromTile { get; }
+    public MapTile ToTile { get; }
+
+    public CreatureMoveEventArgs(Creature creature, MapTile fromTile, MapTile toTile) {
+        Creature = creature;
+        FromTile = fromTile;
+        ToTile = toTile;
     }
 }
