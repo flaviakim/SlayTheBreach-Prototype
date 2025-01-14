@@ -6,6 +6,7 @@ public enum PushIntoCreatureVersion {
     ContinuePushNextCreature,
 }
 
+// TODO do the target selection in separate effect
 public class PushCardEffect : ICardEffect {
     public string EffectName => "Push";
     public string InstructionText => "Select a target to push";
@@ -32,22 +33,34 @@ public class PushCardEffect : ICardEffect {
     }
 
     public void OnSelectedTile(CardEffectHandler handler, MapTile selectedTile, out bool effectFinished) {
-        effectFinished = false;
         var currentTile = handler.CurrentCardTarget.CurrentTile;
-        PushCreature(handler, selectedTile, currentTile, PushRange);
+        PushCreature(handler, selectedTile, currentTile, PushRange, out var validTarget);
+        effectFinished = validTarget;
     }
 
-    private void PushCreature(CardEffectHandler handler, MapTile creatureTile, MapTile fromTile, int distance) {
-        if (creatureTile == fromTile) return;
+    private void PushCreature(CardEffectHandler handler, MapTile creatureTile, MapTile fromTile, int distance, out bool validTarget) {
+        if (creatureTile == fromTile) {
+            validTarget = false;
+            return;
+        }
 
         var distanceBetweenTiles = handler.Battle.BattleMap.GetDistanceBetweenTiles(handler.CurrentCardTarget.CurrentTile, creatureTile);
         Debug.Assert(distanceBetweenTiles >= 1, $"Distance {distanceBetweenTiles} between tiles should be at least 1, otherwise the tiles are the same");
-        if (distanceBetweenTiles > distance) return;
+        if (distanceBetweenTiles > distance) {
+            validTarget = false;
+            return;
+        }
 
-        if (creatureTile.Occupant == null) return;
+        if (creatureTile.Occupant == null) {
+            validTarget = false;
+            return;
+        }
 
         var isStraightDirection = handler.Battle.BattleMap.GetStraightDirectionBetweenTiles(fromTile, creatureTile, out var direction);
-        if (!isStraightDirection) return;
+        if (!isStraightDirection) {
+            validTarget = false;
+            return;
+        }
 
         var tiles = handler.Battle.BattleMap.GetTilesInDirection(creatureTile, direction, PushDistance, out var pushedOverEdge);
         Debug.Assert(tiles.Count == PushDistance || pushedOverEdge, "Should have gotten the correct number of tiles or pushed over the edge");
@@ -56,6 +69,7 @@ public class PushCardEffect : ICardEffect {
             Debug.Log("Pushed over the edge of the map");
         }
         PushCreatureAlongTiles(handler, tiles, creatureTile.Occupant);
+        validTarget = true;
     }
 
     private void PushCreatureAlongTiles(CardEffectHandler handler, List<MapTile> tiles, Creature creatureToPush) {
