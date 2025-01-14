@@ -128,11 +128,11 @@ public class Battle : IInstance {
     }
 
     private void OnCardFinishedPlaying(object sender, CardPlayedEffectEventArgs e) {
-        // TODO this should eventually be called by the player, not automatically
         if (CheckForWin())
             return;
 
         if (CardsManager.PlayerDeck.HandCards.Count == 0) {
+            // TODO this should eventually be called by the player, not automatically
             EndPlayerTurn();
         }
     }

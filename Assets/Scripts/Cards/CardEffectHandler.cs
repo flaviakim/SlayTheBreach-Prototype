@@ -24,7 +24,9 @@ public class CardEffectHandler : IBattleManager {
     public readonly Queue<ICardEffect> EffectQueue = new();
     [CanBeNull] private ICardEffect CurrentEffect { get; set; } = null!;
 
-    public void Initialize(Battle battle) { }
+    public void Initialize(Battle battle) {
+        Battle.BattleEndedEvent += OnBattleEnded;
+    }
 
     public void UpdateEffect() {
         if (Battle.CurrentTurn != Faction.Player) {
@@ -67,19 +69,6 @@ public class CardEffectHandler : IBattleManager {
         }
     }
 
-    private void FinishUpCurrentEffect() {
-        if (CurrentEffect == null) {
-            Debug.LogWarning("Trying to finish up current effect, but there is no current effect");
-            return;
-        }
-
-        Debug.Log($"Finishing effect {CurrentEffect.EffectName}");
-        CurrentEffect.EndEffect(this);
-        OnEffectFinished?.Invoke(this, new EffectEventArgs(CurrentEffect, CurrentCard, CurrentCardTarget, OtherSelectedCreatures));
-        CurrentEffect = null;
-        PlayNextEffect();
-    }
-
     public void PlayCard(Card card, Creature cardTarget) {
         if (CurrentCard != null) {
             Debug.Log("Trying to play a card, but there is already a card playing, stopping current card. Probably intended behavior.");
@@ -108,6 +97,19 @@ public class CardEffectHandler : IBattleManager {
         FinishUpCurrentEffect();
     }
 
+    private void FinishUpCurrentEffect() {
+        if (CurrentEffect == null) {
+            Debug.LogWarning("Trying to finish up current effect, but there is no current effect");
+            return;
+        }
+
+        Debug.Log($"Finishing effect {CurrentEffect.EffectName}");
+        CurrentEffect.EndEffect(this);
+        OnEffectFinished?.Invoke(this, new EffectEventArgs(CurrentEffect, CurrentCard, CurrentCardTarget, OtherSelectedCreatures));
+        CurrentEffect = null;
+        PlayNextEffect();
+    }
+
     private void PlayNextEffect() {
         if (EffectQueue.Count == 0) {
             FinishUpCurrentCard();
@@ -129,6 +131,10 @@ public class CardEffectHandler : IBattleManager {
             CurrentCard = null;
             OtherSelectedCreatures.Clear();
         }
+    }
+
+    private void OnBattleEnded(object sender, EventArgs e) {
+        StopCurrentCard();
     }
 
 
