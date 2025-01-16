@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerDeck {
+public class PlayerDeck : IInstance {
     public event EventHandler<CardDeckEventArgs> CardDrawnEvent;
     private readonly List<Card> _allPlayerCards = new();
 
@@ -10,8 +10,13 @@ public class PlayerDeck {
     private readonly List<Card> _discardPile = new();
     private readonly List<Card> _hand = new();
 
+    public string IDName { get; }
     public List<Card> HandCards => _hand;
 
+    public PlayerDeck(string idName, List<Card> initialCards) {
+        IDName = idName;
+        _allPlayerCards.AddRange(initialCards);
+    }
 
     public void AddCard(Card card) {
         _allPlayerCards.Add(card);

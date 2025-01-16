@@ -1,0 +1,10 @@
+{
+  "IDName": "ShoveStarterDeck",
+  "CardIdAndCounts": {
+    "Move": 5,
+    "Shove": 5,
+    "StrongPush": 5,
+    "AxeSwing": 2,
+    "ShootArrow": 2
+  }
+}

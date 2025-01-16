@@ -2,24 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardsManager : IBattleManager {
+public class CardsManager : IBattleManager { // TODO should this be a IBattleManager, or something longer lasting? Maybe sth like a IRunManager?
     public PlayerDeck PlayerDeck { get; private set; }
 
-    private readonly CardFactory _cardFactory = new();
+    private readonly StarterDeckFactory _starterDeckFactory = new();
 
     public CardsManager() {
-        _cardFactory.PreloadPrototypes();
-
-        PlayerDeck = new PlayerDeck();
-
-        var prototypeNames = _cardFactory.GetPrototypeNames();
-
-        // TODO: Debug, remove
-        foreach (var card in prototypeNames) {
-            for (int i = 0; i < 3; i++) {
-                PlayerDeck.AddCard(_cardFactory.CreateCardInstance(card));
-            }
-        }
+        PlayerDeck = _starterDeckFactory.CreateStarterDeck("ShoveStarterDeck");
     }
 
     public void Initialize(Battle battle) { }
