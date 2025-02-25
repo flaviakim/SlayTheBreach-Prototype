@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour {
 
@@ -29,6 +30,20 @@ public class CameraController : MonoBehaviour {
         var mapHeight = map.Height;
 
         transform.position = new Vector3(mapWidth / 2f, mapHeight / 2f, -10);
+    }
+
+    private Vector2 _lastMousePosition;
+
+    private void Update() {
+        if (Mouse.current.rightButton.wasPressedThisFrame) {
+            _lastMousePosition = GetMouseWorldPosition();
+        }
+        else if (Mouse.current.rightButton.isPressed) {
+            var currentMousePosition = GetMouseWorldPosition();
+            var delta = currentMousePosition - _lastMousePosition;
+            transform.position += new Vector3(-delta.x, -delta.y, 0);
+        }
+
     }
 
     public Vector3 ScreenToWorldPoint(Vector3 screenPosition) {
