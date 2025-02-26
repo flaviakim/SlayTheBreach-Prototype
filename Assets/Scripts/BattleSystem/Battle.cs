@@ -159,8 +159,8 @@ public class Battle : IInstance {
             return;
 
         if (CardsManager.PlayerDeck.HandCards.Count == 0) {
-            // TODO this should eventually be called by the player, not automatically
-            EndPlayerTurn();
+            Debug.Log("Player played last card");
+            // EndPlayerTurn();
         }
     }
 
