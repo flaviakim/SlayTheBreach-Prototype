@@ -34,7 +34,9 @@ public class CardUIManager : MonoBehaviour {
         _mouseTracker = MouseTracker.Instance;
 
         _playerDeck.CardDrawnEvent += OnCardDrawn;
-        _battle.PlayerHasPlayedCardEvent += OnPlayerHasPlayedCard;
+        _battle.PlayerPlayedCardEvent += OnPlayerPlayedCard;
+        _battle.PlayerDiscardedCardEvent += OnPlayerDiscardedCard;
+        _battle.PlayerDiscardedHandEvent += OnPlayerDiscardedHand;
         _mouseTracker.MouseDragEvent += OnMouseDragEvent;
 
         InitializeCardUI();
@@ -86,19 +88,39 @@ public class CardUIManager : MonoBehaviour {
         }
     }
 
-    private void OnPlayerHasPlayedCard(object sender, CardPlayedEventArgs e) {
-        Debug.Log($"CardUIManager: OnPlayerHasPlayedCard {e.CardIndex}");
+    private void OnPlayerPlayedCard(object sender, CardPlayedEventArgs e) {
+        Debug.Log($"CardUIManager: OnPlayerHasPlayedCard {e.CardIndex}/{_cardUIs.Count}");
+        // Debug.Assert(_cardUIs.Count > 0, "_cardUIs.Count > 0");
+        var cardIndex = e.CardIndex;
+        var cardUI = _cardUIs[cardIndex];
+        DestroyCardUI(cardUI, cardIndex);
+        Debug.Log($"CardUI size: {_cardUIs.Count}");
+    }
+
+    private void OnPlayerDiscardedCard(object sender, CardDiscardedEventArgs e) {
         Debug.Assert(_cardUIs.Count > 0, "_cardUIs.Count > 0");
         var cardIndex = e.CardIndex;
         var cardUI = _cardUIs[cardIndex];
         DestroyCardUI(cardUI, cardIndex);
     }
 
+    private void OnPlayerDiscardedHand(object sender, HandDiscardedEventArgs e) {
+        DestroyAllCardUIs();
+    }
+
+    const float CARD_GO_DESTROY_DELAY = 0.5f;
     private void DestroyCardUI(CardUI cardUI, int cardIndex) {
         _cardUIs.RemoveAt(cardIndex);
         cardUI.gameObject.SetActive(false);
-        Destroy(cardUI.gameObject, 0.5f); // Delayed, so stuff like OnMouseHoverExit can still be called correctly
-        RecalculateCardPositions();
+        Destroy(cardUI.gameObject, CARD_GO_DESTROY_DELAY); // Delayed, so stuff like OnMouseHoverExit can still be called correctly
+    }
+
+    private void DestroyAllCardUIs() {
+        while (_cardUIs.Count > 0) {
+            var cardUI = _cardUIs[0];
+            DestroyCardUI(cardUI, 0);
+        }
+        Debug.Assert(_cardUIs.Count == 0);
     }
 
     private void OnCardDrawn(object sender, CardDeckEventArgs e) {

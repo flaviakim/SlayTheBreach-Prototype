@@ -6,7 +6,10 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 public class Battle : IInstance {
-    public event EventHandler<CardPlayedEventArgs> PlayerHasPlayedCardEvent;
+    public event EventHandler<CardPlayedEventArgs> PlayerPlayedCardEvent;
+    public event EventHandler<CardDiscardedEventArgs> PlayerDiscardedCardEvent;
+    public event EventHandler<HandDiscardedEventArgs> PlayerDiscardedHandEvent;
+    public event EventHandler<TurnEndedEventArgs> TurnEndedEvent;
     public event EventHandler BattleWonEvent;
     public event EventHandler BattleEndedEvent;
 
@@ -27,9 +30,12 @@ public class Battle : IInstance {
     public IWinCondition[] WinConditions { get; }
 
     private readonly int _startHandSize;
+    private readonly bool _discardHandAtEndOfTurn;
+
+    public bool HasStarted { get; private set; } = false;
 
 
-    public Battle(string idName, int startHandSize, BattleMap battleMap, [NotNull] IWinCondition[] winConditions) {
+    public Battle(string idName, int startHandSize, BattleMap battleMap, [NotNull] IWinCondition[] winConditions, bool discardHandAtEndOfTurn) {
         if (CurrentBattle != null) {
             Debug.LogWarning("CurrentBattle already initialized, not yet removed.");
         }
@@ -37,6 +43,7 @@ public class Battle : IInstance {
         CurrentBattle = this;
         IDName = idName;
         _startHandSize = startHandSize;
+        _discardHandAtEndOfTurn = discardHandAtEndOfTurn;
 
         CardsManager = new CardsManager();
         BattleMap = battleMap;
@@ -58,6 +65,14 @@ public class Battle : IInstance {
         CardEffectHandler.OnCardFinished += OnCardFinishedPlaying;
         CardsManager.PlayerDeck.InitializeNewGame(_startHandSize);
         CurrentTurn = Faction.Player;
+    }
+
+    public void BattleStart() {
+        if (HasStarted) {
+            Debug.LogWarning("Battle already started!");
+            return;
+        }
+
         EnemyManager.OnBattleStart();
     }
 
@@ -78,8 +93,19 @@ public class Battle : IInstance {
 
         if (CheckForWin()) return;
 
+
+        if (_discardHandAtEndOfTurn) {
+            DiscardHand(atEndOfTurn: true);
+        }
+
         CurrentTurn = Faction.Enemy;
+        TurnEndedEvent?.Invoke(this, new TurnEndedEventArgs(Faction.Player, Faction.Enemy));
         EnemyManager.StartEnemyTurn();
+    }
+
+    public void DiscardHand(bool atEndOfTurn) {
+        CardsManager.PlayerDeck.DiscardHand(out var discardedCards);
+        PlayerDiscardedHandEvent?.Invoke(this, new HandDiscardedEventArgs(discardedCards, atEndOfTurn));
     }
 
     private bool CheckForWin() {
@@ -124,6 +150,7 @@ public class Battle : IInstance {
 
         CurrentTurn = Faction.Player;
         EnemyManager.ChooseEnemyMoves();
+        TurnEndedEvent?.Invoke(this, new TurnEndedEventArgs(Faction.Player, Faction.Enemy));
         CardsManager.PlayerDeck.DrawCards(_startHandSize);
     }
 
@@ -167,7 +194,7 @@ public class Battle : IInstance {
         }
 
         CardEffectHandler.PlayCard(playedCard, creature);
-        PlayerHasPlayedCardEvent?.Invoke(this, new CardPlayedEventArgs(playedCard, cardIndex, creature));
+        PlayerPlayedCardEvent?.Invoke(this, new CardPlayedEventArgs(playedCard, cardIndex, creature));
 
         return true;
     }
@@ -176,6 +203,8 @@ public class Battle : IInstance {
         GUI.Label(new Rect(10, 10, 100, 20), $"Current turn: {CurrentTurn}");
         CardEffectHandler.OnGUI();
     }
+
+
 }
 
 public class CardPlayedEventArgs : EventArgs {
@@ -190,6 +219,36 @@ public class CardPlayedEventArgs : EventArgs {
     }
 }
 
+public class CardDiscardedEventArgs : EventArgs {
+    public Card Card { get; }
+    public int CardIndex { get; }
+
+    public CardDiscardedEventArgs(Card card, int cardIndex) {
+        Card = card;
+        CardIndex = cardIndex;
+    }
+}
+
+public class HandDiscardedEventArgs : EventArgs {
+    public List<Card> DiscardedCards { get; }
+    public bool AtEndOfTurn { get; }
+
+    public HandDiscardedEventArgs(List<Card> discardedCards, bool atEndOfTurn) {
+        DiscardedCards = discardedCards;
+        AtEndOfTurn = atEndOfTurn;
+    }
+}
+
+public class TurnEndedEventArgs : EventArgs {
+    public Faction EndedFaction { get; }
+    public Faction NextFaction { get; }
+
+    public TurnEndedEventArgs(Faction endedFaction, Faction nextFaction) {
+        EndedFaction = endedFaction;
+        NextFaction = nextFaction;
+    }
+}
+
 
 public class BattleData : PrototypeData {
     public readonly string[] EnemyCreatureIdsToSpawn;
@@ -197,14 +256,16 @@ public class BattleData : PrototypeData {
     public readonly int StartHandSize;
     public readonly string BattleMapIDName;
     public readonly string[] WinConditionIds;
+    public readonly bool DiscardHandAtEndOfTurn;
 
 
-    public BattleData(string idName, int startHandSize, string[] playerCreatureIdsToSpawn, string[] enemyCreatureIdsToSpawn, string battleMapIDName, string[] winConditionIds) :
+    public BattleData(string idName, int startHandSize, string[] playerCreatureIdsToSpawn, string[] enemyCreatureIdsToSpawn, string battleMapIDName, string[] winConditionIds, bool discardHandAtEndOfTurn) :
         base(idName) {
         StartHandSize = startHandSize;
         PlayerCreatureIdsToSpawn = playerCreatureIdsToSpawn;
         EnemyCreatureIdsToSpawn = enemyCreatureIdsToSpawn;
         BattleMapIDName = battleMapIDName;
         WinConditionIds = winConditionIds;
+        DiscardHandAtEndOfTurn = discardHandAtEndOfTurn;
     }
 }

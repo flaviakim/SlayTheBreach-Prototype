@@ -53,13 +53,12 @@ public class EnemyManager : IBattleManager {
             _battle.CreaturesManager.CreaturesInBattle.Where(creature => !creature.IsPlayerControlled)
                 .All(creature => _enemies.Any(enemy => enemy.Creature == creature)),
             "Trying to start battle, but not all enemy creatures are in the list of enemies");
-        foreach (var enemy in _enemies) {
-            enemy.ChooseNextMove(_battle);
-        }
+
+        ChooseEnemyMoves(false);
 
         Debug.Assert(_enemies.All(enemy => enemy.NextMove != null), "Trying to start battle, but enemies have no moves");
 
-        _battle.PlayerHasPlayedCardEvent += (sender, args) => ChooseEnemyMoves(updateOnly: true);
+        _battle.PlayerPlayedCardEvent += (sender, args) => ChooseEnemyMoves(updateOnly: true);
     }
 
 

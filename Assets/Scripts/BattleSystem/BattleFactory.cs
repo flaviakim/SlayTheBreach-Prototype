@@ -21,7 +21,7 @@ public class BattleFactory : InstanceFactory<Battle, BattleData, BattleFactory> 
             winConditions[i] = _winConditionFactory.CreateWinCondition(battleData.WinConditionIds[i]);
         }
 
-        var battle = new Battle(battleId, battleData.StartHandSize, battleMap, winConditions);
+        var battle = new Battle(battleId, battleData.StartHandSize, battleMap, winConditions, battleData.DiscardHandAtEndOfTurn);
         battle.Initialize();
 
         SpawnEnemies(battle, battleMap, battleData.EnemyCreatureIdsToSpawn);

@@ -56,6 +56,26 @@ public class PlayerDeck : IInstance {
         return true;
     }
 
+    public void DiscardHand(out List<Card> discardedCards) {
+        discardedCards = new List<Card>(HandCards.Count);
+        while (_hand.Count > 0) {
+            DiscardCard(0, out var card);
+            discardedCards.Add(card);
+        }
+    }
+
+    public void DiscardCard(int index, out Card discardedCard) {
+        if (index < 0 || index >= _hand.Count) {
+            discardedCard = null;
+            Debug.LogError($"Trying to discard card at index {index} (there are {_hand.Count} cards in hand)");
+            return;
+        }
+
+        discardedCard = _hand[index];
+        _hand.RemoveAt(index);
+        _discardPile.Add(discardedCard);
+    }
+
     private void DrawCard() {
         if (_drawPile.Count == 0) {
             ShuffleDiscardPileIntoDrawPile();

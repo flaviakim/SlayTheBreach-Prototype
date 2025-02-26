@@ -26,6 +26,15 @@ public class CardEffectHandler : IBattleManager {
 
     public void Initialize(Battle battle) {
         Battle.BattleEndedEvent += OnBattleEnded;
+        Battle.TurnEndedEvent += OnTurnEnded;
+    }
+
+    private void OnTurnEnded(object sender, TurnEndedEventArgs e) {
+        if (e.EndedFaction == Faction.Player) {
+            if (IsPlayingCard) {
+                StopCurrentCard();
+            }
+        }
     }
 
     public void UpdateEffect() {

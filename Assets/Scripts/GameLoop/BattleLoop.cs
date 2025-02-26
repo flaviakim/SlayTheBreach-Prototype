@@ -59,6 +59,8 @@ namespace GameLoop {
                 _battle.BattleEndedEvent += OnBattleEnded;
 
                 SceneManager.sceneLoaded -= OnSceneManagerSceneLoaded;
+
+                _battle.BattleStart();
             }
         }
 

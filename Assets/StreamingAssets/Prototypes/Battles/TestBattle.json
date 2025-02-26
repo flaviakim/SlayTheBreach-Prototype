@@ -12,6 +12,7 @@
     "fighter"
   ],
   "StartHandSize": 5,
+  "DiscardHandAtEndOfTurn": true,
   "WinConditionIds": [
     "KillAllEnemies"
   ]
